@@ -288,29 +288,29 @@
 
             <!-- NPC (Left-Center, Level 3) -->
             <g class="class-box">
-                <rect x="280" y="550" width="180" height="120" class="class-border"/>
-                <rect x="280" y="550" width="180" height="35" class="class-header"/>
-                <text x="370" y="565" text-anchor="middle" class="stereotype">«entity»</text>
-                <text x="370" y="580" text-anchor="middle" class="class-name">NPC</text>
-                <line x1="280" y1="585" x2="460" y2="585" stroke="#30363d" stroke-width="1"/>
-                <text x="290" y="600" class="attribute">- name: String</text>
-                <text x="290" y="615" class="attribute">- dialogues: List</text>
-                <line x1="280" y1="620" x2="460" y2="620" stroke="#30363d" stroke-width="1"/>
-                <text x="290" y="635" class="method">+ greet()</text>
-                <text x="290" y="650" class="method">+ getDialogue()</text>
+                <rect x="280" y="750" width="180" height="120" class="class-border"/>
+                <rect x="280" y="750" width="180" height="35" class="class-header"/>
+                <text x="370" y="765" text-anchor="middle" class="stereotype">«entity»</text>
+                <text x="370" y="780" text-anchor="middle" class="class-name">NPC</text>
+                <line x1="280" y1="785" x2="460" y2="785" stroke="#30363d" stroke-width="1"/>
+                <text x="290" y="800" class="attribute">- name: String</text>
+                <text x="290" y="815" class="attribute">- dialogues: List</text>
+                <line x1="280" y1="820" x2="460" y2="820" stroke="#30363d" stroke-width="1"/>
+                <text x="290" y="835" class="method">+ greet()</text>
+                <text x="290" y="850" class="method">+ getDialogue()</text>
             </g>
 
             <!-- INVENTORY (Center, Level 3) -->
             <g class="class-box">
-                <rect x="320" y="570" width="180" height="100" class="class-border"/>
-                <rect x="320" y="570" width="180" height="35" class="class-header"/>
-                <text x="410" y="585" text-anchor="middle" class="stereotype">«entity»</text>
-                <text x="410" y="600" text-anchor="middle" class="class-name">Inventory</text>
-                <line x1="320" y1="605" x2="500" y2="605" stroke="#30363d" stroke-width="1"/>
-                <text x="330" y="620" class="attribute">- items: List</text>
-                <line x1="320" y1="625" x2="500" y2="625" stroke="#30363d" stroke-width="1"/>
-                <text x="330" y="640" class="method">+ addItem()</text>
-                <text x="330" y="655" class="method">+ hasItem()</text>
+                <rect x="280" y="570" width="180" height="100" class="class-border"/>
+                <rect x="280" y="570" width="180" height="35" class="class-header"/>
+                <text x="370" y="585" text-anchor="middle" class="stereotype">«entity»</text>
+                <text x="370" y="600" text-anchor="middle" class="class-name">Inventory</text>
+                <line x1="280" y1="605" x2="460" y2="605" stroke="#30363d" stroke-width="1"/>
+                <text x="290" y="620" class="attribute">- items: List</text>
+                <line x1="280" y1="625" x2="460" y2="625" stroke="#30363d" stroke-width="1"/>
+                <text x="290" y="640" class="method">+ addItem()</text>
+                <text x="290" y="655" class="method">+ hasItem()</text>
             </g>
 
             <!-- TRIAL (Center-Right, Level 3) -->
@@ -439,9 +439,9 @@
             <text x="125" y="545" class="multiplicity">*</text>
 
             <!-- Campaign to NPC (Composition) -->
-            <line x1="200" y1="440" x2="340" y2="550" class="composition" marker-end="url(#diamond-blue)"/>
-            <text x="260" y="490" class="label">contains</text>
-            <text x="350" y="545" class="multiplicity">*</text>
+            <line x1="200" y1="440" x2="340" y2="750" class="composition" marker-end="url(#diamond-blue)"/>
+            <text x="260" y="590" class="label">contains</text>
+            <text x="350" y="745" class="multiplicity">*</text>
 
             <!-- Campaign to Trial (Composition) -->
             <line x1="250" y1="400" x2="600" y2="550" class="composition" marker-end="url(#diamond-blue)"/>
