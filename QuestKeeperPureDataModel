@@ -1,0 +1,362 @@
+# QuestKeeper - Data Model
+
+## Overview
+
+This data model defines the entities, attributes, and relationships for QuestKeeper. It shows **what data exists** in the system, not how it behaves (see UML Class Diagram for methods and behaviors).
+
+---
+
+## Core Entities
+
+### **Character**
+Player's character with D&D 5e stats.
+
+**Attributes:**
+- character_id
+- name
+- race
+- class
+- level
+- experience_points
+- max_hp
+- current_hp
+- armor_class
+- strength
+- dexterity
+- constitution
+- intelligence
+- wisdom
+- charisma
+- skill_proficiencies (list)
+- created_at
+
+**Relationships:**
+- Has one Inventory
+- Has many CharacterFlags
+- Has one GameState
+- Participates in many CompletedTrials
+- Participates in many ActiveQuests
+
+---
+
+### **Inventory**
+Container for character's items.
+
+**Attributes:**
+- character_id (reference)
+- items (list of item references)
+- max_weight
+
+**Relationships:**
+- Belongs to one Character
+- Contains many Items
+
+---
+
+### **Item**
+Equipment, consumables, and magical items.
+
+**Attributes:**
+- item_id
+- name
+- description
+- type
+- rarity
+- is_consumable
+- gold_value
+- weight
+
+**Relationships:**
+- Belongs to one Campaign
+- Has many ItemEffects
+- Can be in many Inventories
+- Can be in many Locations (on ground)
+- Can be rewarded by many MiniGames
+
+---
+
+### **ItemEffect**
+Powers and abilities of items.
+
+**Attributes:**
+- effect_id
+- item_id (reference)
+- effect_type
+- effect_description
+- modifier
+- uses_per_rest
+
+**Relationships:**
+- Belongs to one Item
+
+---
+
+### **Campaign**
+Container for all game content.
+
+**Attributes:**
+- campaign_id
+- name
+- description
+- tone
+- recommended_level
+- author
+
+**Relationships:**
+- Contains many Locations
+- Contains many NPCs
+- Contains many Trials
+- Contains many Items
+- Contains many Monsters
+- Contains many Quests
+
+---
+
+### **Location**
+Places the player can visit.
+
+**Attributes:**
+- location_id
+- campaign_id (reference)
+- name
+- description
+- type
+- is_safe_zone
+- exits (map: direction → location_id)
+- items_on_ground (list of item_ids)
+- npcs_present (list of npc_ids)
+
+**Relationships:**
+- Belongs to one Campaign
+- Connects to many Locations (via exits)
+- Contains many Items (on ground)
+- Contains many NPCs (present)
+- May contain one Trial
+
+---
+
+### **NPC**
+Non-player characters for dialogue and interaction.
+
+**Attributes:**
+- npc_id
+- campaign_id (reference)
+- name
+- role
+- voice_description
+- behavior_description
+- greeting_text
+
+**Relationships:**
+- Belongs to one Campaign
+- Has many DialogueOptions
+- Can be present at many Locations
+
+---
+
+### **DialogueOption**
+Individual dialogue responses from NPCs.
+
+**Attributes:**
+- dialogue_id
+- npc_id (reference)
+- topic
+- response_text
+- required_flag
+- sets_flag
+
+**Relationships:**
+- Belongs to one NPC
+
+---
+
+### **Trial**
+Structured puzzle challenge sequences.
+
+**Attributes:**
+- trial_id
+- campaign_id (reference)
+- location_id (reference)
+- name
+- description
+- difficulty
+
+**Relationships:**
+- Belongs to one Campaign
+- Located at one Location
+- Contains many MiniGames
+- May have one Encounter
+
+---
+
+### **MiniGame**
+Individual puzzles within a Trial.
+
+**Attributes:**
+- minigame_id
+- trial_id (reference)
+- name
+- description
+- type
+- required_skill
+- difficulty_class
+- allow_retry
+- success_reward_id (reference to Item)
+- success_text
+- failure_text
+- failure_damage
+
+**Relationships:**
+- Belongs to one Trial
+- Rewards one Item
+
+---
+
+### **Monster**
+Enemy creatures for combat.
+
+**Attributes:**
+- monster_id
+- campaign_id (reference)
+- name
+- type
+- size
+- challenge_rating
+- armor_class
+- max_hp
+- hp_dice
+- strength
+- dexterity
+- constitution
+- intelligence
+- wisdom
+- charisma
+
+**Relationships:**
+- Belongs to one Campaign
+- Appears in many Encounters
+
+---
+
+### **Encounter**
+Combat scenarios with enemies.
+
+**Attributes:**
+- encounter_id
+- trial_id (reference)
+- name
+- type
+- difficulty
+- monster_ids (list of references)
+- monster_counts (map: monster_id → count)
+- experience_reward
+- gold_reward
+
+**Relationships:**
+- May belong to one Trial
+- Contains many Monsters
+
+---
+
+### **Quest**
+Missions and objectives for the player.
+
+**Attributes:**
+- quest_id
+- campaign_id (reference)
+- name
+- description
+- type
+- experience_reward
+- gold_reward
+
+**Relationships:**
+- Belongs to one Campaign
+- Has many QuestObjectives
+- Can be active for many Characters
+
+---
+
+### **QuestObjective**
+Individual steps within a quest.
+
+**Attributes:**
+- objective_id
+- quest_id (reference)
+- description
+- required_flag
+- sequence_order
+- is_complete
+
+**Relationships:**
+- Belongs to one Quest
+
+---
+
+### **GameState**
+Tracks player's progress through the game.
+
+**Attributes:**
+- state_id
+- character_id (reference)
+- campaign_id (reference)
+- current_location_id (reference)
+- flags (set of strings)
+- completed_trial_ids (set of trial_ids)
+- active_quest_ids (list of quest_ids)
+- discovered_location_ids (set of location_ids)
+- last_save_time
+- total_play_time
+
+**Relationships:**
+- Belongs to one Character
+- References one Campaign
+- References one Location (current)
+- Tracks many completed Trials
+- Tracks many active Quests
+
+---
+
+### **CharacterFlag**
+Individual progress flags for character state.
+
+**Attributes:**
+- flag_id
+- character_id (reference)
+- flag_name
+- set_at
+
+**Relationships:**
+- Belongs to one Character
+
+---
+
+### **CompletedTrial**
+Record of trials the character has completed.
+
+**Attributes:**
+- completion_id
+- character_id (reference)
+- trial_id (reference)
+- completed_at
+
+**Relationships:**
+- Belongs to one Character
+- References one Trial
+
+---
+
+### **ActiveQuest**
+Quests currently being pursued by the character.
+
+**Attributes:**
+- active_id
+- character_id (reference)
+- quest_id (reference)
+- started_at
+
+**Relationships:**
+- Belongs to one Character
+- References one Quest
+
+---
