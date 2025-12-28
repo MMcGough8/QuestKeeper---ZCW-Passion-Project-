@@ -81,7 +81,7 @@ public class Display {
         println();
         printBox(name, DEFAULT_WIDTH, CYAN);
         println();
-        pritntWrapped(description, DEFAULT_WIDTH);
+        printWrapped(description, DEFAULT_WIDTH);
         println();
 
         if (exits != null && exits.length > 0) {
