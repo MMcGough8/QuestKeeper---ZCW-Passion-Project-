@@ -262,4 +262,188 @@ public class Display {
         println(colorize(description, WHITE));
     }
 
-    
+    public static void showNarrative(String text) {
+        println();
+        printWrapped(colorize(text, WHITE), DEFAULT_WIDTH);
+        println();
+    }
+
+    public static void showPause() {
+        println(colorize("...", DEFAULT));
+    }
+
+    public static void showSceneTransition(String sceneName) {
+        println();
+        printDivider(DIVIDER_ACCENT, DEFAULT_WIDTH);
+        if (sceneName != null && !sceneName.isEmpty()) {
+            int padding = (DEFAULT_WIDTH - sceneName.length() - 4) / 2;
+            println(colorize(" ".repeat(Math.max(0, padding)) + "« " + sceneName + " »", MAGENTA));
+        }
+        printDivider(DIVIDER_ACCENT, DEFAULT_WIDTH);
+        println();
+    }
+
+    public static void showChoices(String prompt, String[] choices) {
+        println();
+        println(colorize(prompt, WHITE));
+        println();
+        
+        for (int i = 0; i < choices.length; i++) {
+            print(colorize("  [" + (i + 1) + "] ", YELLOW));
+            println(colorize(choices[i], WHITE));
+        }
+        println();
+    }
+
+    // ========================================================================
+    // MUDDLEBROOK-SPECIFIC DISPLAYS
+    // ========================================================================
+
+    public static void showTrialHeader(String trialName, int trialNumber) {
+        println();
+        printBox("TRIAL #" + trialNumber + ": " + trialName, DEFAULT_WIDTH, MAGENTA);
+        println();
+    }
+
+    public static void showMiniGameResult(boolean success, String reward, String consequence) {
+        println();
+        if (success) {
+            println(colorize("═══ SUCCESS! ═══", GREEN));
+            if (reward != null && !reward.isEmpty()) {
+                println(colorize("✦ REWARD: " + reward, YELLOW));
+            }
+        } else {
+            println(colorize("═══ FAILED ═══", RED));
+            if (consequence != null && !consequence.isEmpty()) {
+                println(colorize("✗ " + consequence, RED));
+            }
+        }
+        println();
+    }
+
+    public static void showVillainMessage(String message) {
+        println();
+        printDivider('~', DEFAULT_WIDTH);
+        println(colorize("  🎭 The Harlequin Machinist:", MAGENTA));
+        println();
+        print(colorize("  \"", RED));
+        print(colorize(message, WHITE));
+        println(colorize("\"", RED));
+        println();
+        printDivider('~', DEFAULT_WIDTH);
+        println();
+    }
+
+    public static void showItemGained(String itemName, String itemDescription) {
+        println();
+        println(colorize("╔══════════════════════════════════════╗", YELLOW));
+        println(colorize("║       ✦ NEW ITEM ACQUIRED ✦         ║", YELLOW));
+        println(colorize("╚══════════════════════════════════════╝", YELLOW));
+        println();
+        println(colorize("  " + itemName, GREEN));
+        if (itemDescription != null && !itemDescription.isEmpty()) {
+            println(colorize("  " + itemDescription, WHITE));
+        }
+        println();
+    }
+
+    public static void printBox(String title, int width, Ansi.Color color) {
+        // Top border
+        print(colorize(String.valueOf(BOX_TOP_LEFT), color));
+        print(colorize(String.valueOf(BOX_HORIZONTAL).repeat(width - 2), color));
+        println(colorize(String.valueOf(BOX_TOP_RIGHT), color));
+        
+        // Title line (centered)
+        int padding = (width - 2 - title.length()) / 2;
+        int extraPadding = (width - 2 - title.length()) % 2;
+        
+        print(colorize(String.valueOf(BOX_VERTICAL), color));
+        print(" ".repeat(padding));
+        print(colorize(title, color));
+        print(" ".repeat(padding + extraPadding));
+        println(colorize(String.valueOf(BOX_VERTICAL), color));
+        
+        // Bottom border
+        print(colorize(String.valueOf(BOX_BOTTOM_LEFT), color));
+        print(colorize(String.valueOf(BOX_HORIZONTAL).repeat(width - 2), color));
+        println(colorize(String.valueOf(BOX_BOTTOM_RIGHT), color));
+    }
+
+    public static void printDivider(char character, int width) {
+        println(String.valueOf(character).repeat(width));
+    }
+
+    public static void printDivider(char character, int width, Ansi.Color color) {
+        println(colorize(String.valueOf(character).repeat(width), color));
+    }
+
+    public static void printWrapped(String text, int width) {
+        if (text == null || text.isEmpty()) return;
+        
+        String[] words = text.split("\\s+");
+        StringBuilder line = new StringBuilder();
+        
+        for (String word : words) {
+            if (line.length() + word.length() + 1 > width) {
+                println(line.toString());
+                line = new StringBuilder();
+            }
+            if (line.length() > 0) {
+                line.append(" ");
+            }
+            line.append(word);
+        }
+        
+        if (line.length() > 0) {
+            println(line.toString());
+        }
+    }
+
+    public static String colorize(String text, Ansi.Color color) {
+        if (!colorsEnabled || color == null) {
+            return text;
+        }
+        return ansi().fg(color).a(text).reset().toString();
+    }
+
+    public static String bold(String text) {
+        if (!colorsEnabled) {
+            return text;
+        }
+        return ansi().bold().a(text).reset().toString();
+    }
+
+    public static void clearScreen() {
+        if (colorsEnabled) {
+            System.out.print(ansi().eraseScreen().cursor(1, 1));
+        } else {
+            for (int i = 0; i < 50; i++) {
+                println();
+            }
+        }
+    }
+
+    public static void print(String text) {
+        System.out.print(text);
+    }
+
+    public static void println(String text) {
+        System.out.println(text);
+    }
+
+    public static void println() {
+        System.out.println();
+    }
+
+    public static void printf(String format, Object... args) {
+        System.out.printf(format, args);
+    }
+
+    public static void showPrompt() {
+        print(colorize("> ", GREEN));
+    }
+
+    public static void showPrompt(String prompt) {
+        print(colorize(prompt + " ", GREEN));
+    }
+}
