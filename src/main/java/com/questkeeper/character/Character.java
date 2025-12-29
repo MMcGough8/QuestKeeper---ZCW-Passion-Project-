@@ -91,7 +91,7 @@ public class Character {
     public enum Race {
         HUMAN( "Human", 0, 0, 0, 0, 0, 0, 30),              // +1 to all (handled separately)
         DWARF("Dwarf", 0, 0, 2, 0, 0, 0, 25),               // +2 CON
-        Elf("Elf", 0, 2, 0, 0, 0, 0, 30),                   // +2 DEX
+        ELF("Elf", 0, 2, 0, 0, 0, 0, 30),                   // +2 DEX
         HALFLING("Halfling", 0, 2, 0, 0, 0, 0, 25),         // +2 DEX
         DRAGONBORN("Dragonborn", 2, 0, 0, 0, 0, 1, 30),     // +2 STR, +1 CHA
         GNOME("Gnome", 0, 0, 0, 2, 0, 0, 25),               // +2 INT
@@ -121,7 +121,7 @@ public class Character {
 
         public String getDisplayName() {
             return displayName; 
-            
+        }
         public int getStrBonus() { 
             return strBonus; 
         }
@@ -156,5 +156,39 @@ public class Character {
         }
     }
 
+    /**
+     * Available character classes.
+     */
+    public enum CharacterClass {
+        BARBARIAN("Barbarian", 12, Ability.STRENGTH, Ability.CONSTITUTION),
+        BARD("Bard", 8, Ability.DEXTERITY, Ability.CHARISMA),
+        CLERIC("Cleric", 8, Ability.WISDOM, Ability.CHARISMA),
+        DRUID("Druid", 8, Ability.INTELLIGENCE, Ability.WISDOM),
+        FIGHTER("Fighter", 10, Ability.STRENGTH, Ability.CONSTITUTION),
+        MONK("Monk", 8, Ability.STRENGTH, Ability.DEXTERITY),
+        PALADIN("Paladin", 10, Ability.WISDOM, Ability.CHARISMA),
+        RANGER("Ranger", 10, Ability.STRENGTH, Ability.DEXTERITY),
+        ROGUE("Rogue", 8, Ability.DEXTERITY, Ability.INTELLIGENCE),
+        SORCERER("Sorcerer", 6, Ability.CONSTITUTION, Ability.CHARISMA),
+        WARLOCK("Warlock", 8, Ability.WISDOM, Ability.CHARISMA),
+        WIZARD("Wizard", 6, Ability.INTELLIGENCE, Ability.WISDOM);
+
+        private final String displayName;
+        private final int hitDie;
+        private final Ability primarySave;
+        private final Ability secondarySave;
+
+        CharacterClass(String displayName, int hitDie, Ability primary, Ability secondary) {
+            this.displayName = displayName;
+            this.hitDie = hitDie;
+            this.primarySave = primary;
+            this.secondarySave = secondary;
+        }
+
+        public String getDisplayName() { return displayName; }
+        public int getHitDie() { return hitDie; }
+        public Ability getPrimarySave() { return primarySave; }
+        public Ability getSecondarySave() { return secondarySave; }
+    }
     
 }
