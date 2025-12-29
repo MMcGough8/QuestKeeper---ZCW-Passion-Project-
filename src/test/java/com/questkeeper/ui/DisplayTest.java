@@ -47,12 +47,6 @@ class DisplayTest {
         return outputStream.toString();
     }
     
-    /**
-     * Clears the captured output.
-     */
-    private void clearOutput() {
-        outputStream.reset();
-    }
     
     // ========================================================================
     // INITIALIZATION TESTS

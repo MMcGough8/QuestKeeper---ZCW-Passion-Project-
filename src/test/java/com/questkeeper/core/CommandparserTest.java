@@ -7,7 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-
+import com.questkeeper.core.CommandParser.Command;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -108,6 +108,7 @@ class CommandParserTest {
     
     @Nested
     @DisplayName("Synonym Mapping Tests")
+    @SuppressWarnings("java:S4144")
     class SynonymTests {
         
         @ParameterizedTest
@@ -245,6 +246,7 @@ class CommandParserTest {
     
     @Nested
     @DisplayName("Direction Handling Tests")
+    @SuppressWarnings("java:S4144")
     class DirectionTests {
         
         @ParameterizedTest

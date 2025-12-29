@@ -702,7 +702,7 @@ class DiceTest {
             StringBuilder missing = new StringBuilder();
             for (int i = min; i <= max; i++) {
                 if (!rolled.contains(i)) {
-                    if (missing.length() > 0) missing.append(", ");
+                    if (!missing.isEmpty()) missing.append(", ");
                     missing.append(i);
                 }
             }
