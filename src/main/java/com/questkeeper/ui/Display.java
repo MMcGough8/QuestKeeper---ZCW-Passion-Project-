@@ -16,6 +16,8 @@ import static org.fusesource.jansi.Ansi.ansi;
  * @author Marc McGough
  * @version 1.0
  */
+
+@SuppressWarnings("java:S106") // System.out is intentional for CLI output
 public class Display {
 
     /** Default width for boxes and dividers */
@@ -38,6 +40,9 @@ public class Display {
     
     /** Whether colors are enabled (can be disabled for testing or plain terminals) */
     private static boolean colorsEnabled = true;
+
+    private Display() {
+    }
 
     /**
      * Should be called once at application startup.
@@ -115,7 +120,15 @@ public class Display {
         print("[");
         
         double percentage = (double) current / max;
-        Ansi.Color barColor = percentage > 0.5 ? GREEN : (percentage > 0.25 ? YELLOW : RED);
+
+        Ansi.Color barColor;
+        if (percentage > 0.5) {
+            barColor = GREEN;
+        } else if (percentage > 0.25) {
+            barColor = YELLOW;
+        } else {
+            barColor = RED;
+        }
         
         print(colorize("█".repeat(filled), barColor));
         print(colorize("░".repeat(barWidth - filled), DEFAULT));
@@ -379,22 +392,22 @@ public class Display {
 
     public static void printWrapped(String text, int width) {
         if (text == null || text.isEmpty()) return;
-        
+    
         String[] words = text.split("\\s+");
         StringBuilder line = new StringBuilder();
-        
+    
         for (String word : words) {
             if (line.length() + word.length() + 1 > width) {
                 println(line.toString());
                 line = new StringBuilder();
             }
-            if (line.length() > 0) {
+            if (!line.isEmpty()) {
                 line.append(" ");
             }
             line.append(word);
         }
-        
-        if (line.length() > 0) {
+    
+        if (!line.isEmpty()) {
             println(line.toString());
         }
     }
