@@ -607,7 +607,15 @@ class CharacterTest {
         void skillEnumAbilities() {
             assertEquals(Ability.STRENGTH, Skill.ATHLETICS.getAbility());
             assertEquals(Ability.DEXTERITY, Skill.ACROBATICS.getAbility());
-            assertEquals(Ability.CONSTITUTION, null); // No CON skills
+            assertEquals(Ability.INTELLIGENCE, Skill.ARCANA.getAbility());
+            assertEquals(Ability.WISDOM, Skill.PERCEPTION.getAbility());
+            assertEquals(Ability.CHARISMA, Skill.PERSUASION.getAbility());
+            
+            // Verify no skills use Constitution (D&D 5e has no CON skills)
+            for (Skill skill : Skill.values()) {
+                assertNotEquals(Ability.CONSTITUTION, skill.getAbility(), 
+                    "No skill should use Constitution");
+            }
         }
     }
 }
