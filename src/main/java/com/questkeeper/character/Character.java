@@ -374,4 +374,19 @@ public class Character {
             modifier += getProficiencyBonus();
         }
         return modifier;
+    }
+
+    public int getCurrentHitPoints() {
+        return currentHitPoints;
+    }
+
+    public int getMaxHitPoints() {
+        return maxHitPoints;
+    }
+
+    public int getTemporaryHitPoints() {
+        return temporaryHitPoints;
+    }
+
+    
 }
