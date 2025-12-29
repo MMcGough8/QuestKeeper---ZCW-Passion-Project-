@@ -363,4 +363,15 @@ public class Character {
     public Set<Skill> getProficientSkills() {
         return EnumSet.copyOf(proficientSkills);
     }
+
+    public boolean hasSavingThrowProficiency(Ability ability) {
+        return savingThrowProficiencies.contains(ability);
+    }
+
+    public int getSavingThrowModifier(Ability ability) {
+        int modifier = getAbilityModifier(ability);
+        if (savingThrowProficiencies.contains(ability)) {
+            modifier += getProficiencyBonus();
+        }
+        return modifier;
 }
