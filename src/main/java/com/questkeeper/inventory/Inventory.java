@@ -112,3 +112,58 @@ public class Inventory {
         
         return true;
     }
+
+     public boolean removeItem(Item item) {
+        return removeItem(item, 1);
+    }
+
+    public boolean removeItem(Item item, int quantity) {
+        if (item == null || quantity <= 0) {
+            return false;
+        }
+        
+        // Check if we have enough
+        if (getItemCount(item) < quantity) {
+            return false;
+        }
+        
+        // Remove from stacks
+        int remaining = quantity;
+        List<ItemStack> toRemove = new ArrayList<>();
+        
+        for (ItemStack stack : items) {
+            if (stack.getItem().getId().equals(item.getId())) {
+                int removed = stack.remove(remaining);
+                remaining -= removed;
+                
+                if (stack.isEmpty()) {
+                    toRemove.add(stack);
+                }
+                
+                if (remaining <= 0) {
+                    break;
+                }
+            }
+        }
+
+        items.removeAll(toRemove);
+        return remaining <= 0;
+    }
+
+    public Item removeItemById(String itemId) {
+        for (int i = 0; i < items.size(); i++) {
+            ItemStack stack = items.get(i);
+            if (stack.getItem().getId().equals(itemId)) {
+                Item removed = stack.getItem();
+                if (stack.getQuantity() == 1) {
+                    items.remove(i);
+                } else {
+                    stack.remove(1);
+                }
+                return removed;
+            }
+        }
+        return null;
+    }
+
+    
