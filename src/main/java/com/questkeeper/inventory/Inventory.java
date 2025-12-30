@@ -19,3 +19,48 @@ import java.util.stream.Collectors;
  */
 
 public class Inventory {
+
+     /** Default carrying capacity multiplier (STR × this = capacity in lbs) */
+    private static final double CARRY_CAPACITY_MULTIPLIER = 15.0;
+    
+    /** Default maximum inventory slots (0 = unlimited) */
+    private static final int DEFAULT_MAX_SLOTS = 0;
+
+    private final List<ItemStack> items;
+    private final Map<EquipmentSlot, Item> equipped;
+    
+    private int maxSlots;           // Maximum number of item stacks (0 = unlimited)
+    private double maxWeight;       // Maximum carrying capacity in pounds
+    private int gold;               // Currency
+
+    /**
+     * Equipment slots for wearable/holdable items.
+     */
+    public enum EquipmentSlot {
+        MAIN_HAND("Main Hand"),
+        OFF_HAND("Off Hand"),
+        ARMOR("Armor"),
+        HEAD("Head"),
+        NECK("Neck"),
+        RING_LEFT("Left Ring"),
+        RING_RIGHT("Right Ring");
+        
+        private final String displayName;
+        
+        EquipmentSlot(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() { return displayName; }
+    }
+
+    /**
+     * Creates a new empty inventory with default settings.
+     */
+    public Inventory() {
+        this.items = new ArrayList<>();
+        this.equipped = new HashMap<>();
+        this.maxSlots = DEFAULT_MAX_SLOTS;
+        this.maxWeight = 0; // 0 = no limit
+        this.gold = 0;
+    }
