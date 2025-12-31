@@ -382,3 +382,81 @@ public class Inventory {
     public boolean isEmpty() {
         return items.isEmpty();
     }
+
+    public void clear() {
+        items.clear();
+    }
+
+     public int getTotalItemCount() {
+        return items.stream()
+                .mapToInt(ItemStack::getQuantity)
+                .sum();
+    }
+
+    public int getTotalValue() {
+        int inventoryValue = items.stream()
+                .mapToInt(stack -> stack.getItem().getGoldValue() * stack.getQuantity())
+                .sum();
+        
+        int equippedValue = equipped.values().stream()
+                .mapToInt(Item::getGoldValue)
+                .sum();
+        
+        return inventoryValue + equippedValue + gold;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Inventory[%d items, %.1f/%.1f lbs, %d gp]",
+                getTotalItemCount(), getCurrentWeight(), maxWeight, gold);
+    }
+
+     public static class ItemStack {
+        private final Item item;
+        private int quantity;
+        
+        public ItemStack(Item item, int quantity) {
+            this.item = item;
+            this.quantity = Math.max(1, quantity);
+        }
+        
+        public Item getItem() {
+            return item;
+        }
+        
+        public int getQuantity() {
+            return quantity;
+        }
+        
+        public boolean canStackWith(Item other) {
+            return item.isStackable() && 
+                   item.getId().equals(other.getId()) &&
+                   quantity < item.getMaxStackSize();
+        }
+        
+        public int add(int amount) {
+            int canAdd = item.getMaxStackSize() - quantity;
+            int toAdd = Math.min(amount, canAdd);
+            quantity += toAdd;
+            return toAdd;
+        }
+        
+        public int remove(int amount) {
+            int toRemove = Math.min(amount, quantity);
+            quantity -= toRemove;
+            return toRemove;
+        }
+        
+        public boolean isEmpty() {
+            return quantity <= 0;
+        }
+        
+        @Override
+        public String toString() {
+            if (quantity == 1) {
+                return item.getName();
+            }
+            return item.getName() + " x" + quantity;
+        }
+    }
+}
