@@ -362,3 +362,23 @@ public class Inventory {
     public boolean hasGold(int amount) {
         return gold >= amount;
     }
+
+    public int getUsedSlots() {
+        return items.size();
+    }
+
+    public int getMaxSlots() {
+        return maxSlots;
+    }
+
+     public void setMaxSlots(int maxSlots) {
+        this.maxSlots = Math.max(0, maxSlots);
+    }
+
+    public boolean isFull() {
+        return maxSlots > 0 && items.size() >= maxSlots;
+    }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
