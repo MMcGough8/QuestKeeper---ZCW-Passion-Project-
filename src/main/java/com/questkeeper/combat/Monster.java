@@ -14,6 +14,7 @@ import com.questkeeper.core.Dice;
  */
 
 public class Monster implements Combatant {
+
     public enum Size {
         TINY("Tiny", 2.5),
         SMALL("Small", 5),
@@ -40,7 +41,7 @@ public class Monster implements Combatant {
 
     public enum MonsterType {
         ABERRATION("Aberration"),
-        BEAST("Beast")
+        BEAST("Beast"),
         CELESTIAL("Celestial"),
         CONSTRUCT("Construct"),
         DRAGON("Dragon"),
@@ -55,7 +56,7 @@ public class Monster implements Combatant {
         UNDEAD("Undead");
 
         private final String displayName;
-        
+
         MonsterType(String displayname) {
             this.displayName = displayName;
         }
@@ -63,6 +64,67 @@ public class Monster implements Combatant {
         public String getDisplayName() {
             return displayName;
         }
+    }
+
+    private final String id;
+    private String name;
+    private Size size;
+    private MonsterType type;
+    private String alignment;
+
+    private int armorClass;
+    private int maxHitPoints;
+    private int currentHitPoints;
+    private int speed;
+
+    private int strengthMod;
+    private int dexterityMod;
+    private int constitutionMod;
+    private int intelligenceMod;
+    private int wisdomMod;
+    private int charismaMod;
+
+    private double challengeRating;
+    private int experienceValue;
+    private int attackBonus;
+    private String damageDice;
+
+    private String description;
+
+    public Monster(String id, String name, int armorClass, int maxHitPoints) {
+        this.id  = id;
+        this.name = name;
+        this.armorClass = armorClass;
+        this.maxHitPoints = maxHitPoints;
+        this.currentHitPoints = maxHitPoints;
+
+        this.size = Size.MEDIUM;
+        this.type = MonsterType.HUMANOID;
+        this.alignment = "unaligned";
+        this.speed = 30;
+        this.challengeRating = 0;
+        this.experienceValue = 10;
+        this.attackBonus = 2;
+        this.damageDice = "1d4";
+        this.description = "";
+
+        this.strengthMod = 0;
+        this.dexterityMod = 0;
+        this.constitutionMod = 0;
+        this.intelligenceMod = 0;
+        this.wisdomMod = 0;
+        this.charismaMod = 0;
+    }
+    
+    public Monster(String id, String name, Size size, MonsterType type, 
+                   int armorClass, int maxHitPoints, int speed, 
+                   double challengeRating, int experienceValue) {
+        this(id, name, armorClass, maxHitPoints);
+        this.size = size;
+        this.type = type;
+        this.speed = speed;
+        this.challengeRating = challengeRating;
+        this. experienceValue = experienceValue;
     }
 
     
