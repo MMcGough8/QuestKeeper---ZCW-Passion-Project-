@@ -57,7 +57,7 @@ public class Monster implements Combatant {
 
         private final String displayName;
 
-        MonsterType(String displayname) {
+        MonsterType(String displayName) {
             this.displayName = displayName;
         }
 
@@ -157,6 +157,15 @@ public class Monster implements Combatant {
     }
 
     @Override
+    public int heal(int amount) {
+        if (amount <= 0) return 0;
+    
+        int oldHp = currentHitPoints;
+        currentHitPoints = Math.min(currentHitPoints + amount, maxHitPoints);
+        return currentHitPoints - oldHp;
+    }
+
+    @Override
     public int getInitiativeModifier() {
         return dexterityMod;
     }
@@ -199,7 +208,7 @@ public class Monster implements Combatant {
         return copy;
     }
     
-    public String getID() {
+    public String getId() {
         return id;
     }
 
@@ -345,5 +354,73 @@ public class Monster implements Combatant {
 
     public void setCharismaMod(int mod) { 
         this.charismaMod = mod; 
+    }
+
+    public String getStatBlock() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%s%n", name));
+        sb.append(String.format("%s %s, %s%n", size.getDisplayName(), type.getDisplayName(), alignment));
+        sb.append(String.format("───────────────────────────%n"));
+        sb.append(String.format("AC: %d | HP: %d/%d | Speed: %d ft%n", 
+                armorClass, currentHitPoints, maxHitPoints, speed));
+        sb.append(String.format("───────────────────────────%n"));
+        sb.append(String.format("STR %+d | DEX %+d | CON %+d%n", strengthMod, dexterityMod, constitutionMod));
+        sb.append(String.format("INT %+d | WIS %+d | CHA %+d%n", intelligenceMod, wisdomMod, charismaMod));
+        sb.append(String.format("───────────────────────────%n"));
+        sb.append(String.format("Attack: +%d to hit, %s damage%n", attackBonus, damageDice));
+        sb.append(String.format("CR: %.1f (%d XP)", challengeRating, experienceValue));
+        
+        if (!description.isEmpty()) {
+            sb.append(String.format("%n%n%s", description));
+        }
+        
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s [%s %s, CR %.1f] (HP: %d/%d, AC: %d)",
+                name, size.getDisplayName(), type.getDisplayName(),
+                challengeRating, currentHitPoints, maxHitPoints, armorClass);
+    }
+
+    public static Monster createClockworkCritter(String id) {
+        Monster m = new Monster(id, "Clockwork Critter", Size.SMALL, MonsterType.CONSTRUCT,
+                13, 11, 30, 0.25, 50);
+        m.setAlignment("neutral evil");
+        m.setAbilityModifiers(-1, 2, 2, -4, 0, -4);
+        m.setAttackBonus(4);
+        m.setDamageDice("1d6+2");
+        m.setDescription("A skittering mechanical creature with brass gears and glowing eyes. " +
+                "On hit, target must DC 11 DEX save or drop a small item.");
+        return m;
+    }
+
+    public static Monster createConfettiOoze(String id) {
+        Monster m = new Monster(id, "Confetti Ooze", Size.MEDIUM, MonsterType.OOZE,
+                8, 30, 20, 0.5, 100);
+        m.setAlignment("chaotic neutral");
+        m.setAbilityModifiers(1, -2, 3, -4, 0, -4);
+        m.setAttackBonus(3);
+        m.setDamageDice("1d8+1");
+        m.setDescription("A shimmering blob of animated glitter and confetti. " +
+                "Glitter Burst: When hit by melee, attacker DC 11 CON or blinded 1 round. " +
+                "On death: explodes into confetti, d6: 1-2 sneezing fit (disadv next roll).");
+        return m;
+    }
+    
+    public static Monster createHarlequinMachinist(String id) {
+        Monster m = new Monster(id, "Harlequin Machinist", Size.MEDIUM, MonsterType.HUMANOID,
+                16, 110, 30, 7, 2900);
+        m.setAlignment("chaotic evil");
+        m.setAbilityModifiers(0, 4, 4, 3, 1, 4);
+        m.setAttackBonus(8);
+        m.setDamageDice("1d8+4");
+        m.setDescription("A theatrical villain in a reinforced coat, masked face gleaming. " +
+                "Multiattack (2), Razor Cane (+8, 1d8+4 slash + 1d6 psychic), " +
+                "Clockwork Throw (30/90 ft, marks target for +1d6 on next hit). " +
+                "Show Shield (Recharge 5-6): Reduce damage by 15, teleport 15 ft. " +
+                "Curtain Call (1/day): 20-ft illusion zone, DC 15 WIS or move randomly.");
+        return m;
     }
 }

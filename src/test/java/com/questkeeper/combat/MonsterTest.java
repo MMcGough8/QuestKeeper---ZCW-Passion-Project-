@@ -341,7 +341,7 @@ class MonsterTest {
             assertTrue(statBlock.contains("Construct"));
             assertTrue(statBlock.contains("AC: 13"));
             assertTrue(statBlock.contains("HP: 11/11"));
-            assertTrue(statBlock.contains("CR: 0.2"));
+            assertTrue(statBlock.contains("CR: 0.3"));
         }
         
         @Test
@@ -352,7 +352,7 @@ class MonsterTest {
             assertTrue(str.contains("Clockwork Critter"));
             assertTrue(str.contains("Small"));
             assertTrue(str.contains("Construct"));
-            assertTrue(str.contains("CR 0.2"));
+            assertTrue(str.contains("CR 0.3"));
         }
     }
     
