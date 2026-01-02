@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.questkeeper.combat.Combatant;
 import com.questkeeper.core.Dice;
 
 /**
@@ -12,12 +13,13 @@ import com.questkeeper.core.Dice;
  * 
  * Handles ability scores, derived stats, class/race features,
  * and D&D 5e mechanics like proficiency bonuses and skill checks.
+ * Implements Combatant for use in the combat system.
  * 
  * @author Marc McGough
- * @version 1.0
+ * @version 1.1
  */
-public class Character {
-    
+
+public class Character implements Combatant {
     /**
      * The six core ability scores.
      */
@@ -174,20 +176,15 @@ public class Character {
         public Ability getPrimarySave() { return primarySave; }
         public Ability getSecondarySave() { return secondarySave; }
     }
-   
-    /** Minimum ability score */
+ 
     private static final int MIN_ABILITY_SCORE = 1;
-    
-    /** Maximum ability score (before racial bonuses) */
+
     private static final int MAX_ABILITY_SCORE = 20;
-    
-    /** Base AC when unarmored */
+ 
     private static final int BASE_AC = 10;
-    
-    /** Starting level */
+ 
     private static final int STARTING_LEVEL = 1;
-    
-    /** XP thresholds for each level (index = level - 1) */
+
     private static final int[] XP_THRESHOLDS = {
         0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000,
         85000, 100000, 120000, 140000, 165000, 195000, 225000, 265000, 305000, 355000
@@ -207,12 +204,9 @@ public class Character {
     private int maxHitPoints;
     private int temporaryHitPoints;
     
-    private int armorBonus;  // From equipped armor
-    private int shieldBonus; // From equipped shield
+    private int armorBonus;
+    private int shieldBonus;
 
-    /**
-     * Creates a new character with default stats.
-     */
     public Character(String name, Race race, CharacterClass characterClass) {
         this.name = name;
         this.race = race;
@@ -224,16 +218,13 @@ public class Character {
         this.proficientSkills = EnumSet.noneOf(Skill.class);
         this.savingThrowProficiencies = EnumSet.noneOf(Ability.class);
         
-        // Initialize with default scores of 10
         for (Ability ability : Ability.values()) {
             baseAbilityScores.put(ability, 10);
         }
         
-        // Add class saving throw proficiencies
         savingThrowProficiencies.add(characterClass.getPrimarySave());
         savingThrowProficiencies.add(characterClass.getSecondarySave());
         
-        // Calculate initial HP
         this.maxHitPoints = calculateMaxHitPoints();
         this.currentHitPoints = maxHitPoints;
         this.temporaryHitPoints = 0;
@@ -241,19 +232,90 @@ public class Character {
         this.armorBonus = 0;
         this.shieldBonus = 0;
     }
-    
-    /**
-     * Creates a character with specified ability scores.
-     */
+
     public Character(String name, Race race, CharacterClass characterClass,
                      int str, int dex, int con, int intel, int wis, int cha) {
         this(name, race, characterClass);
         setAbilityScores(str, dex, con, intel, wis, cha);
-
         this.maxHitPoints = calculateMaxHitPoints();
         this.currentHitPoints = maxHitPoints;
     }
+
+    @Override
+    public String getName() {
+        return name;
+    }
     
+    @Override
+    public int getCurrentHitPoints() {
+        return currentHitPoints;
+    }
+    
+    @Override
+    public int getMaxHitPoints() {
+        return maxHitPoints;
+    }
+    
+    @Override
+    public int getArmorClass() {
+        return BASE_AC + getAbilityModifier(Ability.DEXTERITY) + armorBonus + shieldBonus;
+    }
+    
+    @Override
+    public int takeDamage(int amount) {
+        if (amount <= 0) return 0;
+        
+        int remainingDamage = amount;
+        
+        if (temporaryHitPoints > 0) {
+            if (temporaryHitPoints >= remainingDamage) {
+                temporaryHitPoints -= remainingDamage;
+                return 0;
+            } else {
+                remainingDamage -= temporaryHitPoints;
+                temporaryHitPoints = 0;
+            }
+        }
+    
+        int actualDamage = Math.min(remainingDamage, currentHitPoints);
+        currentHitPoints -= actualDamage;
+        return actualDamage;
+    }
+    
+    @Override
+    public int heal(int amount) {
+        if (amount <= 0) return 0;
+        
+        int oldHp = currentHitPoints;
+        currentHitPoints = Math.min(currentHitPoints + amount, maxHitPoints);
+        return currentHitPoints - oldHp;
+    }
+    
+    @Override
+    public boolean isAlive() {
+        return currentHitPoints > 0;
+    }
+    
+    @Override
+    public boolean isUnconscious() {
+        return currentHitPoints <= 0;
+    }
+    
+    @Override
+    public boolean isBloodied() {
+        return currentHitPoints <= maxHitPoints / 2;
+    }
+    
+    @Override
+    public int getInitiativeModifier() {
+        return getAbilityModifier(Ability.DEXTERITY);
+    }
+    
+    @Override
+    public int rollInitiative() {
+        return Dice.rollWithModifier(20, getInitiativeModifier());
+    }
+
     public int getBaseAbilityScore(Ability ability) {
         return baseAbilityScores.get(ability);
     }
@@ -262,18 +324,13 @@ public class Character {
         int base = baseAbilityScores.get(ability);
         int racialBonus = race.getAbilityBonus(ability);
         
-        // Humans get +1 to all abilities
         if (race == Race.HUMAN) {
             racialBonus = 1;
         }
         
         return Math.min(base + racialBonus, MAX_ABILITY_SCORE);
     }
-    
-    /**
-     * Gets the ability modifier for an ability.
-     * Modifier = (score - 10) / 2, rounded down.
-     */
+
     public int getAbilityModifier(Ability ability) {
         return (getAbilityScore(ability) - 10) / 2;
     }
@@ -282,11 +339,9 @@ public class Character {
         int clampedScore = Math.max(MIN_ABILITY_SCORE, Math.min(MAX_ABILITY_SCORE, score));
         baseAbilityScores.put(ability, clampedScore);
         
-        // Recalculate HP if CON changed
         if (ability == Ability.CONSTITUTION) {
             int oldMax = maxHitPoints;
             maxHitPoints = calculateMaxHitPoints();
-            // Adjust current HP proportionally
             if (oldMax > 0) {
                 currentHitPoints = (int) ((double) currentHitPoints / oldMax * maxHitPoints);
             }
@@ -301,7 +356,6 @@ public class Character {
         baseAbilityScores.put(Ability.WISDOM, clampAbilityScore(wis));
         baseAbilityScores.put(Ability.CHARISMA, clampAbilityScore(cha));
         
-        // Recalculate HP
         maxHitPoints = calculateMaxHitPoints();
         if (currentHitPoints > maxHitPoints) {
             currentHitPoints = maxHitPoints;
@@ -315,21 +369,13 @@ public class Character {
     public int getProficiencyBonus() {
         return (level - 1) / 4 + 2;
     }
-    
-    /**
-     * Calculates maximum hit points.
-     * Level 1: max hit die + CON modifier
-     * Higher levels: add average hit die roll + CON modifier per level
-     */
+
     private int calculateMaxHitPoints() {
         int conMod = getAbilityModifier(Ability.CONSTITUTION);
         int hitDie = characterClass.getHitDie();
         
-        // Level 1: max hit die + CON mod
         int hp = hitDie + conMod;
         
-        // Additional levels: average roll + CON mod
-        // Average = (hitDie / 2) + 1
         for (int i = 2; i <= level; i++) {
             hp += (hitDie / 2) + 1 + conMod;
         }
@@ -337,31 +383,10 @@ public class Character {
         return Math.max(1, hp);
     }
     
-    /**
-     * Gets the armor class.
-     * Base AC = 10 + DEX modifier + armor bonus + shield bonus
-     */
-    public int getArmorClass() {
-        return BASE_AC + getAbilityModifier(Ability.DEXTERITY) + armorBonus + shieldBonus;
-    }
-    
-    /**
-     * Gets the initiative modifier (DEX modifier).
-     */
-    public int getInitiativeModifier() {
-        return getAbilityModifier(Ability.DEXTERITY);
-    }
-    
-    /**
-     * Gets the movement speed.
-     */
     public int getSpeed() {
         return race.getSpeed();
     }
     
-    /**
-     * Gets the passive perception score.
-     */
     public int getPassivePerception() {
         return 10 + getSkillModifier(Skill.PERCEPTION);
     }
@@ -378,9 +403,6 @@ public class Character {
         return proficientSkills.contains(skill);
     }
     
-    /**
-     * Gets the modifier for a skill check.
-     */
     public int getSkillModifier(Skill skill) {
         int modifier = getAbilityModifier(skill.getAbility());
         if (proficientSkills.contains(skill)) {
@@ -393,9 +415,6 @@ public class Character {
         return EnumSet.copyOf(proficientSkills);
     }
     
-    /**
-     * Checks if the character is proficient in a saving throw.
-     */
     public boolean hasSavingThrowProficiency(Ability ability) {
         return savingThrowProficiencies.contains(ability);
     }
@@ -407,7 +426,7 @@ public class Character {
         }
         return modifier;
     }
-
+    
     public int makeAbilityCheck(Ability ability) {
         return Dice.rollWithModifier(20, getAbilityModifier(ability));
     }
@@ -431,73 +450,19 @@ public class Character {
     public boolean makeSavingThrowAgainstDC(Ability ability, int dc) {
         return Dice.checkAgainstDC(getSavingThrowModifier(ability), dc);
     }
-
-    public int rollInitiative() {
-        return Dice.rollWithModifier(20, getInitiativeModifier());
-    }
-
-    public int getCurrentHitPoints() {
-        return currentHitPoints;
-    }
-
-    public int getMaxHitPoints() {
-        return maxHitPoints;
-    }
-
+    
     public int getTemporaryHitPoints() {
         return temporaryHitPoints;
     }
-
-    public int heal(int amount) {
-        if (amount <= 0) return 0;
-        
-        int oldHp = currentHitPoints;
-        currentHitPoints = Math.min(currentHitPoints + amount, maxHitPoints);
-        return currentHitPoints - oldHp;
-    }
-
-    public int takeDamage(int amount) {
-        if (amount <= 0) return 0;
-        
-        int remainingDamage = amount;
-        
-        // Deplete temp HP first
-        if (temporaryHitPoints > 0) {
-            if (temporaryHitPoints >= remainingDamage) {
-                temporaryHitPoints -= remainingDamage;
-                return 0;
-            } else {
-                remainingDamage -= temporaryHitPoints;
-                temporaryHitPoints = 0;
-            }
-        }
-        
-        // Apply remaining damage to real HP
-        int actualDamage = Math.min(remainingDamage, currentHitPoints);
-        currentHitPoints -= actualDamage;
-        return actualDamage;
-    }
     
-    /**
-     * Sets temporary hit points.
-     * Temp HP don't stack - only keeps the higher value.
-     */
     public void setTemporaryHitPoints(int amount) {
         temporaryHitPoints = Math.max(temporaryHitPoints, amount);
-    }
-
-    public boolean isUnconscious() {
-        return currentHitPoints <= 0;
-    }
-
-    public boolean isBloodied() {
-        return currentHitPoints <= maxHitPoints / 2;
     }
 
     public void fullHeal() {
         currentHitPoints = maxHitPoints;
     }
-
+ 
     public int getLevel() {
         return level;
     }
@@ -508,7 +473,7 @@ public class Character {
 
     public int getXpForNextLevel() {
         if (level >= XP_THRESHOLDS.length) {
-            return -1; // Max level
+            return -1;
         }
         return XP_THRESHOLDS[level];
     }
@@ -518,8 +483,7 @@ public class Character {
         
         experiencePoints += xp;
         int levelsGained = 0;
-        
-        // Check for level ups
+
         while (level < XP_THRESHOLDS.length && experiencePoints >= XP_THRESHOLDS[level]) {
             levelUp();
             levelsGained++;
@@ -531,11 +495,9 @@ public class Character {
     private void levelUp() {
         level++;
         
-        // Recalculate max HP
         int oldMax = maxHitPoints;
         maxHitPoints = calculateMaxHitPoints();
         
-        // Add the HP difference to current HP
         currentHitPoints += (maxHitPoints - oldMax);
     }
     
@@ -564,10 +526,6 @@ public class Character {
         return shieldBonus;
     }
 
-    public String getName() {
-        return name;
-    }
-    
     public void setName(String name) {
         this.name = name;
     }
