@@ -38,6 +38,33 @@ public class Monster implements Combatant {
         }
     }
 
+    public enum MonsterType {
+        ABERRATION("Aberration"),
+        BEAST("Beast")
+        CELESTIAL("Celestial"),
+        CONSTRUCT("Construct"),
+        DRAGON("Dragon"),
+        ELEMENTAL("Elemental"),
+        FEY("Fey"),
+        FIEND("Fiend"),
+        GIANT("GIANT"),
+        HUMANOID("Humanoid"),
+        MONSTROSITY("Monstrosity"),
+        OOZE("Ooze"),
+        PLANT("Plant"),
+        UNDEAD("Undead");
+
+        private final String displayName;
+        
+        MonsterType(String displayname) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+
     
     
 }
