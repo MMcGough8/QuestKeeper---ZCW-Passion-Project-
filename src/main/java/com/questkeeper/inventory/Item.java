@@ -13,10 +13,16 @@ import java.util.UUID;
  * @version 1.0
  */
 public class Item {
-    private static final int DEFAULT_MAX_STACK = 1;
 
+    /** Default stack size for non-stackable items */
+    private static final int DEFAULT_MAX_STACK = 1;
+    
+    /** Default stack size for stackable items */
     private static final int STACKABLE_MAX_STACK = 99;
 
+    /**
+     * Categories of items for sorting and filtering.
+     */
     public enum ItemType {
         WEAPON("Weapon"),
         ARMOR("Armor"),
@@ -37,6 +43,9 @@ public class Item {
         public String getDisplayName() { return displayName; }
     }
 
+    /**
+     * Rarity levels for items (affects value and power).
+     */
     public enum Rarity {
         COMMON("Common", "gray"),
         UNCOMMON("Uncommon", "green"),
@@ -68,10 +77,16 @@ public class Item {
     private int maxStackSize;
     private boolean questItem;      // Quest items cannot be dropped/sold
 
+    /**
+     * Creates a basic item with minimal properties.
+     */
     public Item(String name, ItemType type) {
         this(name, type, "", 0.0, 0);
     }
 
+    /**
+     * Creates an item with standard properties.
+     */
     public Item(String name, ItemType type, String description, double weight, int goldValue) {
         this.id = generateId(name);
         this.name = name;
@@ -85,6 +100,9 @@ public class Item {
         this.questItem = false;
     }
 
+    /**
+     * Full constructor for complete item specification.
+     */
     public Item(String name, ItemType type, String description, double weight, 
                 int goldValue, Rarity rarity, boolean stackable) {
         this(name, type, description, weight, goldValue);
@@ -93,6 +111,9 @@ public class Item {
         this.maxStackSize = stackable ? STACKABLE_MAX_STACK : DEFAULT_MAX_STACK;
     }
 
+    /**
+     * Protected constructor for subclasses that need to set their own ID.
+     */
     protected Item(String id, String name, ItemType type, String description, 
                    double weight, int goldValue) {
         this.id = id;
@@ -107,6 +128,9 @@ public class Item {
         this.questItem = false;
     }
 
+    /**
+     * Generates a unique ID based on name and UUID.
+     */
     private static String generateId(String name) {
         String baseName = name.toLowerCase().replaceAll("\\s+", "_");
         return baseName + "_" + UUID.randomUUID().toString().substring(0, 8);
@@ -206,6 +230,15 @@ public class Item {
     }
 
     public Item copy() {
+        Item copy = new Item(this.id, name, type, description, weight, goldValue);
+        copy.rarity = this.rarity;
+        copy.stackable = this.stackable;
+        copy.maxStackSize = this.maxStackSize;
+        copy.questItem = this.questItem;
+        return copy;
+    }
+
+    public Item copyWithNewId() {
         Item copy = new Item(generateId(name), name, type, description, weight, goldValue);
         copy.rarity = this.rarity;
         copy.stackable = this.stackable;
@@ -213,6 +246,7 @@ public class Item {
         copy.questItem = this.questItem;
         return copy;
     }
+
 
     public String getDisplayName() {
         if (rarity != Rarity.COMMON) {

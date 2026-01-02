@@ -14,6 +14,9 @@ import java.util.Set;
  */
 public class Weapon extends Item {
 
+    /**
+     * Damage types for weapons.
+     */
     public enum DamageType {
         BLUDGEONING("Bludgeoning"),
         PIERCING("Piercing"),
@@ -38,6 +41,9 @@ public class Weapon extends Item {
         public String getDisplayName() { return displayName; }
     }
 
+    /**
+     * Weapon categories for proficiency.
+     */
     public enum WeaponCategory {
         SIMPLE_MELEE("Simple Melee"),
         SIMPLE_RANGED("Simple Ranged"),
@@ -69,6 +75,9 @@ public class Weapon extends Item {
         }
     }
 
+    /**
+     * Special weapon properties per D&D 5e rules.
+     */
     public enum WeaponProperty {
         AMMUNITION("Ammunition"),       // Requires ammo to fire
         FINESSE("Finesse"),             // Can use DEX instead of STR
@@ -141,6 +150,25 @@ public class Weapon extends Item {
         this.longRange = Math.max(normalRange, longRange);
     }
 
+    /**
+     * Protected copy constructor that preserves the original ID.
+     */
+    protected Weapon(Weapon original) {
+        super(original.getId(), original.getName(), ItemType.WEAPON, 
+              original.getDescription(), original.getWeight(), original.getGoldValue());
+        this.damageDiceCount = original.damageDiceCount;
+        this.damageDieSize = original.damageDieSize;
+        this.damageType = original.damageType;
+        this.category = original.category;
+        this.properties = EnumSet.copyOf(original.properties);
+        this.normalRange = original.normalRange;
+        this.longRange = original.longRange;
+        this.versatileDieSize = original.versatileDieSize;
+        this.attackBonus = original.attackBonus;
+        this.damageBonus = original.damageBonus;
+        setRarity(original.getRarity());
+    }
+
     public void addProperty(WeaponProperty property) {
         properties.add(property);
     }
@@ -193,6 +221,9 @@ public class Weapon extends Item {
         return hasProperty(WeaponProperty.MAGICAL) || attackBonus > 0 || damageBonus > 0;
     }
 
+    /**
+     * Gets the damage dice string (e.g., "2d6", "1d8+2").
+     */
     public String getDamageDice() {
         StringBuilder sb = new StringBuilder();
         sb.append(damageDiceCount).append("d").append(damageDieSize);
@@ -315,6 +346,13 @@ public class Weapon extends Item {
 
     @Override
     public Item copy() {
+        return new Weapon(this);
+    }
+    
+    /**
+     * Creates a copy with a new unique ID (for loot duplication).
+     */
+    public Weapon copyWithNewId() {
         Weapon copy = new Weapon(getName(), damageDiceCount, damageDieSize,
                 damageType, category, getWeight(), getGoldValue());
         copy.setDescription(getDescription());
@@ -378,8 +416,6 @@ public class Weapon extends Item {
                 getName(), bonusStr, category.getDisplayName(), 
                 getDamageDice(), damageType.getDisplayName(), rangeStr);
     }
-
-    // ==================== Static Factory Methods for Common Weapons ====================
 
     // Simple Melee Weapons
     public static Weapon createClub() {

@@ -15,10 +15,10 @@ public class Armor extends Item {
      * Armor categories that determine how DEX modifier is applied.
      */
     public enum ArmorCategory {
-        LIGHT("Light Armor", true, -1),                     // Full DEX mod
-        MEDIUM("Medium Armor", true, 2),       // DEX mod capped at +2
-        HEAVY("Heavy Armor", false, 0),        // No DEX mod
-        SHIELD("Shield", false, 0);            // No DEX mod (just flat bonus)
+        LIGHT("Light Armor", true, -1),         // Full DEX mod
+        MEDIUM("Medium Armor", true, 2),        // DEX mod capped at +2
+        HEAVY("Heavy Armor", false, 0),         // No DEX mod
+        SHIELD("Shield", false, 0);             // No DEX mod (just flat bonus)
         
         private final String displayName;
         private final boolean allowsDex;
@@ -69,6 +69,25 @@ public class Armor extends Item {
         this.stealthDisadvantage = stealthDisadvantage;
     }
 
+    /**
+     * Protected copy constructor that preserves the original ID.
+     */
+    protected Armor(Armor original) {
+        super(original.getId(), original.getName(), 
+              original.getCategory() == ArmorCategory.SHIELD ? ItemType.SHIELD : ItemType.ARMOR,
+              original.getDescription(), original.getWeight(), original.getGoldValue());
+        this.category = original.category;
+        this.baseAC = original.baseAC;
+        this.strengthRequirement = original.strengthRequirement;
+        this.stealthDisadvantage = original.stealthDisadvantage;
+        this.acBonus = original.acBonus;
+        setRarity(original.getRarity());
+    }
+
+    /**
+     * Calculates the total AC this armor provides.
+     * Does NOT include the wearer's DEX modifier - that's handled by Character.
+     */
     public int getTotalBaseAC() {
         return baseAC + acBonus;
     }
@@ -91,9 +110,6 @@ public class Armor extends Item {
         return ac;
     }
 
-    /**
-     * For shields, returns just the AC bonus (typically 2).
-     */
     public int getShieldBonus() {
         if (isShield()) {
             return baseAC + acBonus;
@@ -130,7 +146,7 @@ public class Armor extends Item {
      */
     public int getSpeedPenalty(int strengthScore) {
         if (strengthRequirement > 0 && strengthScore < strengthRequirement) {
-            return 10;
+            return 10; // Standard D&D 5e penalty
         }
         return 0;
     }
@@ -149,7 +165,6 @@ public class Armor extends Item {
 
     public void setCategory(ArmorCategory category) {
         this.category = category;
-        // Update item type to match
         setType(category == ArmorCategory.SHIELD ? ItemType.SHIELD : ItemType.ARMOR);
     }
 
@@ -191,6 +206,13 @@ public class Armor extends Item {
 
     @Override
     public Item copy() {
+        return new Armor(this);
+    }
+
+    /**
+     * Creates a copy with a new unique ID (for loot duplication).
+     */
+    public Armor copyWithNewId() {
         Armor copy = new Armor(getName(), category, baseAC, 
                 strengthRequirement, stealthDisadvantage,
                 getWeight(), getGoldValue());
