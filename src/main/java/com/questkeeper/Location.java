@@ -125,4 +125,28 @@ public class Location {
      public int getExitCount() {
         return exits.size();
     }
+
+    public List<String> getNpcs() {
+        return Collections.unmodifiableList(npcs);
+    }
+
+    public boolean hasNpc(String npcId) {
+        return npcId != null && npcs.contains(npcId);
+    }
+
+    public void addNpc(String npcId) {
+        if (npcId != null && !npcId.trim().isEmpty() && !npcs.contains(npcId)) {
+            npcs.add(npcId);
+        }
+    }
+
+    public boolean removeNpc(String npcId) {
+        return npcId != null && npcs.remove(npcId);
+    }
+
+    public int getNpcCount() {
+        return npcs.size();
+    }
+
+
 }
