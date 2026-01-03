@@ -209,4 +209,45 @@ public class Location {
     public Set<String> getFlags() {
         return Collections.unmodifiableSet(flags);
     }
+
+    /**
+     * Returns a formatted string of available exits for display.
+     */
+    public String getExitsDisplay() {
+        if (exits.isEmpty()) {
+            return "There are no obvious exits.";
+        }
+        
+        StringBuilder sb = new StringBuilder("Exits: ");
+        List<String> exitList = new ArrayList<>(exits.keySet());
+        Collections.sort(exitList);
+        
+        for (int i = 0; i < exitList.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(exitList.get(i));
+        }
+        
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Location[id=%s, name=%s, exits=%d, npcs=%d, items=%d]",
+                id, name, exits.size(), npcs.size(), items.size());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Location other = (Location) obj;
+        return id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }
