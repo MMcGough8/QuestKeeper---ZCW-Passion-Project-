@@ -250,4 +250,155 @@ public class Location {
     public int hashCode() {
         return id.hashCode();
     }
+
+    // ==================== Factory Methods for Muddlebrook ====================
+
+    /**
+     * Creates the Drunken Dragon Inn (main hub).
+     */
+    public static Location createDrunkenDragonInn() {
+        Location inn = new Location(
+            "drunken_dragon_inn",
+            "The Drunken Dragon Inn",
+            "A warm, bustling tavern with creaky wooden floors and the smell of hearty stew.",
+            "You push open the heavy oak door and warmth washes over you. The Drunken Dragon Inn " +
+            "is alive with the clink of mugs and murmur of conversation. A bard strums lazily in " +
+            "the corner, and the bartender polishes glasses with practiced ease. Lanterns cast " +
+            "dancing shadows across worn wooden tables where locals nurse their drinks."
+        );
+        
+        inn.addExit("north", "town_square");
+        inn.addExit("door", "town_square");
+        inn.addNpc("norrin_bard");
+        inn.addNpc("mara_bartender");
+        
+        return inn;
+    }
+
+    /**
+     * Creates the Town Square (central hub).
+     */
+    public static Location createTownSquare() {
+        Location square = new Location(
+            "town_square",
+            "Muddlebrook Town Square",
+            "The muddy center of town, surrounded by shops and the looming Town Hall.",
+            "The town square squelches underfoot—Muddlebrook earns its name. A weathered " +
+            "notice board stands at the center, plastered with papers. To the north, the " +
+            "imposing Town Hall watches over the square. Shops line the east side, and the " +
+            "warm glow of the Drunken Dragon Inn beckons from the south."
+        );
+        
+        square.addExit("south", "drunken_dragon_inn");
+        square.addExit("north", "town_hall");
+        square.addExit("east", "market_row");
+        square.addExit("west", "clocktower_hill");
+        
+        return square;
+    }
+
+    /**
+     * Creates Town Hall (Trial #1 location).
+     */
+    public static Location createTownHall() {
+        Location hall = new Location(
+            "town_hall",
+            "Muddlebrook Town Hall",
+            "An official building with creaky floors and the faint smell of old paper.",
+            "The Town Hall's double doors open with a groan. Inside, dust motes dance in " +
+            "shafts of light from high windows. Portraits of past mayors line the walls, " +
+            "their painted eyes seeming to follow you. A grand staircase leads up to the " +
+            "mayor's office. Something feels... off. Too quiet."
+        );
+        
+        hall.addExit("south", "town_square");
+        hall.addExit("upstairs", "mayors_office");
+        
+        return hall;
+    }
+
+    /**
+     * Creates the Mayor's Office (Trial #1 puzzle room).
+     */
+    public static Location createMayorsOffice() {
+        Location office = new Location(
+            "mayors_office",
+            "Mayor's Office",
+            "A ransacked office with scattered papers and strange clockwork devices.",
+            "You reach the top of the stairs and freeze. The mayor's office has been " +
+            "transformed into something between a crime scene and a carnival. Papers are " +
+            "scattered everywhere. A clock on the wall ticks backwards. A mechanical frog " +
+            "sits on the desk, watching you with glass eyes. And pinned to the mayor's " +
+            "empty chair is a note with a laughing mask drawn on it."
+        );
+        
+        office.addExit("downstairs", "town_hall");
+        office.setFlag("trial_location");
+        
+        return office;
+    }
+
+    /**
+     * Creates Old Market Row (shopping district).
+     */
+    public static Location createMarketRow() {
+        Location market = new Location(
+            "market_row",
+            "Old Market Row",
+            "A narrow street lined with shops, stalls, and the occasional suspicious alley.",
+            "Market Row buzzes with haggling voices and the clatter of commerce. Colorful " +
+            "awnings shade stalls selling everything from fresh bread to questionable potions. " +
+            "One shop catches your eye—'Clockwork Curios' reads the sign, with gears turning " +
+            "lazily in the window display."
+        );
+        
+        market.addExit("west", "town_square");
+        market.addExit("shop", "clockwork_curios");
+        market.addNpc("street_vendor");
+        
+        return market;
+    }
+
+    /**
+     * Creates Clockwork Curios shop.
+     */
+    public static Location createClockworkCurios() {
+        Location shop = new Location(
+            "clockwork_curios",
+            "Clockwork Curios",
+            "A cramped shop filled with ticking, whirring, and occasionally sparking devices.",
+            "A bell chimes as you enter, though you don't see one. The shop is a maze of " +
+            "shelves crammed with mechanical oddities—music boxes that play themselves, " +
+            "compasses that point to 'interesting', pocket watches with too many hands. " +
+            "Behind the counter, a sharp-eyed woman looks up from a disassembled device. " +
+            "\"Browser or buyer?\" she asks."
+        );
+        
+        shop.addExit("out", "market_row");
+        shop.addNpc("elara_shopkeeper");
+        
+        return shop;
+    }
+
+    /**
+     * Creates Clocktower Hill.
+     */
+    public static Location createClocktowerHill() {
+        Location hill = new Location(
+            "clocktower_hill",
+            "Clocktower Hill",
+            "A steep hill crowned by an abandoned clocktower that hasn't told time in years.",
+            "The path up Clocktower Hill is overgrown but well-worn by curious feet. The " +
+            "clocktower looms above, its face frozen at an impossible time—all four hands " +
+            "pointing in different directions. Locals say it stopped the night the old " +
+            "mayor vanished, twenty years ago. The new mayor's disappearance has people " +
+            "whispering about curses."
+        );
+        
+        hill.addExit("east", "town_square");
+        hill.addExit("up", "clocktower_base");
+        hill.lock();  // Unlocked after Trial #1
+        
+        return hill;
+    }
 }
