@@ -116,5 +116,13 @@ public class Location {
         }
     }
 
-    
+    public void removeExit(String direction) {
+        if (direction != null) {
+            exits.remove(direction.toLowerCase());
+        }
+    }
+
+     public int getExitCount() {
+        return exits.size();
+    }
 }
