@@ -218,3 +218,35 @@ public class NPC {
     public int getSampleLineCount() {
         return sampleLines.size();
     }
+
+    public boolean hasMetPlayer() {
+        return flags.contains(FLAG_MET_PLAYER);
+    }
+
+    public void markAsMet() {
+        flags.add(FLAG_MET_PLAYER);
+    }
+
+    public void resetMet() {
+        flags.remove(FLAG_MET_PLAYER);
+    }
+
+    public boolean hasFlag(String flag) {
+        return flag != null && flags.contains(flag.toLowerCase());
+    }
+
+    public void setFlag(String flag) {
+        if (flag != null && !flag.trim().isEmpty()) {
+            flags.add(flag.toLowerCase());
+        }
+    }
+
+    public void removeFlag(String flag) {
+        if (flag != null) {
+            flags.remove(flag.toLowerCase());
+        }
+    }
+
+    public Set<String> getFlags() {
+        return Collections.unmodifiableSet(flags);
+    }
