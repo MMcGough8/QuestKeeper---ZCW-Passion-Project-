@@ -164,3 +164,57 @@ public class NPC {
         }
         return greeting;
     }
+
+    public String getDialogue(String topic) {
+        if (topic == null) {
+            return null;
+        }
+        return dialogues.get(topic.toLowerCase());
+    }
+
+    public boolean hasDialogue(String topic) {
+        return topic != null && dialogues.containsKey(topic.toLowerCase());
+    }
+
+    public void addDialogue(String topic, String response) {
+        if (topic != null && !topic.trim().isEmpty() && response != null) {
+            dialogues.put(topic.toLowerCase(), response);
+        }
+    }
+
+    public void removeDialogue(String topic) {
+        if (topic != null) {
+            dialogues.remove(topic.toLowerCase());
+        }
+    }
+
+    public List<String> getAvailableTopics() {
+        List<String> topics = new ArrayList<>(dialogues.keySet());
+        Collections.sort(topics);
+        return Collections.unmodifiableList(topics);
+    }
+
+    public int getDialogueCount() {
+        return dialogues.size();
+    }
+
+    public List<String> getSampleLines() {
+        return Collections.unmodifiableList(sampleLines);
+    }
+
+    public void addSampleLine(String line) {
+        if (line != null && !line.trim().isEmpty()) {
+            sampleLines.add(line);
+        }
+    }
+
+    public String getRandomSampleLine() {
+        if (sampleLines.isEmpty()) {
+            return "";
+        }
+        return sampleLines.get(random.nextInt(sampleLines.size()));
+    }
+
+    public int getSampleLineCount() {
+        return sampleLines.size();
+    }
