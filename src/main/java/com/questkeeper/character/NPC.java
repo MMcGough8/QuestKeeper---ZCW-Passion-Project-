@@ -1,4 +1,4 @@
-package com.questkeeper;
+package com.questkeeper.character;
 
 import java.util.ArrayList;
 import java.util.Collections;
