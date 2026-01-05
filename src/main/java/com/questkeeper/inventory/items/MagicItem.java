@@ -347,5 +347,217 @@ public class MagicItem extends Item {
         return copy;
     }
 
+    /**
+     * Creates Blinkstep Spark - teleport 10 ft (1/long rest).
+     */
+    public static MagicItem createBlinkstepSpark() {
+        MagicItem item = new MagicItem(
+            "Blinkstep Spark",
+            "A tiny crystal that crackles with residual arcane energy. " +
+            "When activated, it allows the bearer to blink through space.",
+            0.1, 150, Rarity.UNCOMMON,
+            TeleportEffect.createBlinkstepSpark()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Featherfall Bookmark - cast Feather Fall (1/day).
+     */
+    public static MagicItem createFeatherfallBookmark() {
+        MagicItem item = new MagicItem(
+            "Featherfall Bookmark",
+            "A delicate bookmark made of preserved feathers. " +
+            "When falling, you may activate it to drift safely to the ground.",
+            0.05, 100, Rarity.UNCOMMON,
+            SpellEffect.createFeatherfallBookmark()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Jester's Lucky Coin - +1d4 to roll, risk of backlash (1/day).
+     */
+    public static MagicItem createJestersLuckyCoin() {
+        MagicItem item = new MagicItem(
+            "Jester's Lucky Coin",
+            "A two-faced coin that seems to giggle when flipped. " +
+            "Fortune favors the bold, but the Jester takes his due.",
+            0.02, 100, Rarity.UNCOMMON,
+            BonusRollEffect.createJestersLuckyCoin()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Sigil Shard - reduce damage by 2 (1/day).
+     */
+    public static MagicItem createSigilShard() {
+        MagicItem item = new MagicItem(
+            "Sigil Shard",
+            "A fragment of a protective ward, still glowing faintly with power. " +
+            "It can absorb a small amount of incoming harm.",
+            0.1, 120, Rarity.UNCOMMON,
+            DamageReductionEffect.createSigilShard()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Whispering Stone - party communication (1/day).
+     */
+    public static MagicItem createWhisperingStone() {
+        MagicItem item = new MagicItem(
+            "Whispering Stone",
+            "A smooth river stone that hums softly when held to the ear. " +
+            "Speak into it, and your allies will hear your words in their minds.",
+            0.2, 80, Rarity.UNCOMMON,
+            UtilityEffect.createWhisperingStone()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Flash Powder Orb - blind enemies (consumable).
+     */
+    public static MagicItem createFlashPowderOrb() {
+        MagicItem item = new MagicItem(
+            "Flash Powder Orb",
+            "A fragile glass orb filled with sparkling powder. " +
+            "Throw it to create a blinding flash.",
+            0.5, 50, Rarity.COMMON,
+            UtilityEffect.createFlashPowderOrb()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Cloak Pin of Minor Disguise - change appearance (1/day).
+     */
+    public static MagicItem createCloakPinOfMinorDisguise() {
+        MagicItem item = new MagicItem(
+            "Cloak Pin of Minor Disguise",
+            "An ornate pin depicting a featureless face. " +
+            "It allows subtle alterations to your voice and features.",
+            0.05, 100, Rarity.UNCOMMON,
+            SkillBonusEffect.createCloakPinOfMinorDisguise()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Gearbreaker's Kit - +2 to disable mechanical traps (3 charges).
+     */
+    public static MagicItem createGearbrakersKit() {
+        MagicItem item = new MagicItem(
+            "Gearbreaker's Kit",
+            "A set of specialized tools designed for dismantling clockwork mechanisms. " +
+            "The previous owner left notes about common trap patterns.",
+            2.0, 200, Rarity.UNCOMMON,
+            SkillBonusEffect.createGearbrakersKit()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Hopper's Jump Band - enhanced jump (1/long rest).
+     */
+    public static MagicItem createHoppersJumpBand() {
+        MagicItem item = new MagicItem(
+            "Hopper's Jump Band",
+            "An elastic band that was once worn by a champion frog-racing jockey. " +
+            "It stores kinetic energy for spectacular leaps.",
+            0.1, 80, Rarity.UNCOMMON,
+            MovementEffect.createHoppersJumpBand()
+        );
+        return item;
+    }
+
+    /**
+     * Creates Harlequin's Favor - advantage on one roll (consumable, meta-reward).
+     */
+    public static MagicItem createHarlequinsFavor() {
+        MagicItem item = new MagicItem(
+            "Harlequin's Favor",
+            "A small token bearing a laughing mask. The Machinist rewards cleverness, " +
+            "but using his gifts means becoming part of the show.",
+            0.01, 0, Rarity.RARE,
+            BonusRollEffect.createHarlequinsFavor()
+        );
+        return item;
+    }
+
+    /**
+     * Creates a +1 Weapon effect package (can be added to any weapon).
+     */
+    public static List<ItemEffect> createPlusOneWeaponEffects() {
+        List<ItemEffect> effects = new ArrayList<>();
+        effects.add(StatBonusEffect.createPlusOneWeaponAttack());
+        effects.add(StatBonusEffect.createPlusOneWeaponDamage());
+        return effects;
+    }
+
+    /**
+     * Creates a Flame Tongue sword.
+     */
+    public static MagicItem createFlameTongue() {
+        List<ItemEffect> effects = new ArrayList<>();
+        effects.add(ExtraDamageEffect.createFlameTongue());
+        effects.add(new UtilityEffect("flame_tongue_light", "Blazing Light", 
+                UtilityEffect.UtilityType.LIGHT, 40));
+
+        MagicItem item = new MagicItem(
+            "Flame Tongue Longsword",
+            "This sword is wreathed in flames when drawn. " +
+            "Speaking its command word causes fire to erupt from the blade.",
+            3.0, 5000, Rarity.RARE, effects
+        );
+        item.setRequiresAttunement(true);
+        return item;
+    }
+
+    /**
+     * Creates a Ring of Protection (+1 AC and saves).
+     */
+    public static MagicItem createRingOfProtection() {
+        List<ItemEffect> effects = new ArrayList<>();
+        effects.add(StatBonusEffect.createRingOfProtectionAC());
+        effects.add(StatBonusEffect.createRingOfProtectionSaves());
+
+        MagicItem item = new MagicItem(
+            "Ring of Protection",
+            "A silver ring inscribed with protective runes.",
+            0.02, 3500, Rarity.RARE, effects
+        );
+        item.setRequiresAttunement(true);
+        return item;
+    }
+
+    /**
+     * Creates Gauntlets of Ogre Power (STR 19).
+     */
+    public static MagicItem createGauntletsOfOgrePower() {
+        MagicItem item = new MagicItem(
+            "Gauntlets of Ogre Power",
+            "Heavy iron gauntlets etched with runes of strength.",
+            1.0, 8000, Rarity.UNCOMMON,
+            AbilitySetEffect.createGauntletsOfOgrePower()
+        );
+        item.setRequiresAttunement(true);
+        return item;
+    }
+
+    /**
+     * Creates a Potion of Healing.
+     */
+    public static MagicItem createPotionOfHealing() {
+        MagicItem item = new MagicItem(
+            "Potion of Healing",
+            "A vial of red liquid that glimmers when agitated.",
+            0.5, 50, Rarity.COMMON,
+            SpellEffect.createPotionOfHealing()
+        );
+        return item;
+    }
 }
 
