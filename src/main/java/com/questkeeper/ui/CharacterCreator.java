@@ -493,6 +493,7 @@ public class CharacterCreator {
         }
         String input = scanner.nextLine().trim();
         return input.isEmpty() ? defaultValue : input;
+    }
   
     private static <T extends Enum<T>> T promptForEnum(T[] values, String prompt) {
         while (true) {
