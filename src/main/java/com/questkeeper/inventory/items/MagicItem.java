@@ -172,4 +172,99 @@ public class MagicItem extends Item {
         return "";
     }
 
+    public boolean requiresAttunement() {
+        return requiresAttunement;
+    }
+
+    public void setRequiresAttunement(boolean requiresAttunement) {
+        this.requiresAttunement = requiresAttunement;
+    }
+
+    public boolean isAttuned() {
+        return attuned;
+    }
+
+    public boolean isAttunedTo(Character character) {
+        if (character == null || !attuned) {
+            return false;
+        }
+        return character.getName().equals(attunedToName);
+    }
+
+    public String getAttunedToName() {
+        return attunedToName;
+    }
+
+    public String getAttunedToId() {
+        return attunedToId;
+    }
+
+    public String attune(Character character) {
+        if (character == null) {
+            throw new IllegalArgumentException("Character cannot be null");
+        }
+
+        if (!requiresAttunement) {
+            return getName() + " doesn't require attunement.";
+        }
+
+        if (attuned && !isAttunedTo(character)) {
+            throw new IllegalStateException(getName() + " is already attuned to " + attunedToName + ". Unattune first.");
+        }
+
+        if (isAttunedTo(character)) {
+            return getName() + " is already attuned to " + character.getName() + ".";
+        }
+
+        // Check attunement requirements 
+        if (attunementRequirement != null && !meetsAttunementRequirement(character)) {
+            throw new IllegalStateException(getName() + " requires attunement by a " + attunementRequirement + ".");
+        }
+
+        this.attuned = true;
+        this.attunedToName = character.getName();
+
+        return character.getName() + " attunes to " + getName() + ". " + "Its magic resonates with their soul.";
+    }
+
+    public String unattune() {
+        if (!attuned) {
+            return getName() + " is not attuned to anyone.";
+        }
+
+        String previousOwner = attunedToName;
+        this.attuned = false;
+        this.attunedToId = null;
+        this.attunedToName = null;
+
+        return getName() + " is no longer attuned to " + previousOwner + ".";
+    }
+
+    public String getAttunementRequirement() {
+        return attunementRequirement;
+    }
+
+    public void setAttunementRequirement(String requirement) {
+        this.attunementRequirement = requirement;
+    }
+
+    protected boolean meetsAttunementRequirement(Character character) {
+        if (attunementRequirement == null || attunementRequirement.isEmpty()) {
+            return true;
+        }
+
+        String charClass = character.getCharacterClass().name().toLowerCase();
+        String requirement = attunementRequirement.toLowerCase();
+
+        if (requirement.equals("spellcaster")) {
+        
+            return charClass.equals("wizard") || charClass.equals("sorcerer") ||
+                   charClass.equals("warlock") || charClass.equals("bard") ||
+                   charClass.equals("cleric") || charClass.equals("druid") ||
+                   charClass.equals("paladin") || charClass.equals("ranger");
+        }
+        
+        return charClass.contains(requirement);
+    }
     
+}
