@@ -54,4 +54,42 @@ public class MagicItem extends Item {
         }
     }
 
-    
+    public void addEffect(ItemEffect effect) {
+        if (effect != null) {
+            effects.add(effect);
+        }
+    }
+
+    public boolean removeEffect(ItemEffect effect) {
+        return effects.remove(effect);
+    }
+
+    public List<ItemEffect> getEffects() {
+        return Collections.unmodifiableList(effects);
+    }
+
+    public List<ItemEffect> getPassiveEffects() {
+        return effects.stream()
+                .filter(ItemEffect::isPassive)
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemEffect> getActiveEffects() {
+        return effects.stream()
+                .filter(e -> !e.isPassive())
+                .collect(Collectors.toList());
+    }
+
+    public List<ItemEffect> getUsableEffects() {
+        return effects.stream()
+                .filter(e -> !e.isPassive() && e.isUseable())
+                .collect(Collectors.toList());
+    }
+
+    public boolean hasEffects() {
+        return !effects.isEmpty();
+    }
+
+     public int getEffectCount() {
+        return effects.size();
+    }
