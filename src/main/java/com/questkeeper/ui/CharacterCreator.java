@@ -302,3 +302,32 @@ public static Character createCharacter() {
         pressEnterToContinue();
     }
 
+    private static void showFinalCharacterSheet(Character character) {
+        clearScreen();
+        printBox("YOUR HERO IS READY!", 80, GREEN);
+        println();
+        println(bold(centerText(character.getName(), 80)));
+        println(centerText("Level 1 " + character.getRace().getDisplayName() + " " + character.getCharacterClass().getDisplayName(), 80));
+        println();
+        printDivider('─', 80, WHITE);
+
+        println(bold("ABILITY SCORES"));
+        println(character.getAbilityScoresString());
+        println();
+
+        println(bold("COMBAT"));
+        println(String.format("  Hit Points: %s%d/%d%s", colorize("", GREEN), character.getCurrentHitPoints(), character.getMaxHitPoints(), colorize("", WHITE)));
+        println(String.format("  Armor Class: %d", character.getArmorClass()));
+        println(String.format("  Initiative: +%d", character.getAbilityModifier(Ability.DEXTERITY)));
+        println(String.format("  Speed: %d ft", character.getRace().getSpeed()));
+        println(String.format("  Proficiency Bonus: +%d", character.getProficiencyBonus()));
+        println();
+
+        println(bold("RACIAL TRAITS"));
+        println("  " + character.getRace().getDisplayName() + " traits applied");
+        println();
+
+        printBox("Press Enter to begin your adventure as " + character.getName() + "...", 80, YELLOW);
+        scanner.nextLine();
+    }
+
