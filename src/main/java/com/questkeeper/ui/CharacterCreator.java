@@ -331,3 +331,59 @@ public static Character createCharacter() {
         scanner.nextLine();
     }
 
+    private static String promptForString(String prompt, String defaultValue) {
+        print(colorize(prompt + " ", CYAN));
+        if (!defaultValue.isEmpty()) print(colorize("(default: " + defaultValue + ") ", MAGENTA));
+        String input = scanner.nextLine().trim();
+        return input.isEmpty() ? defaultValue : input;
+    }
+
+    private static <T extends Enum<T>> T promptForEnum(T[] values, String prompt) {
+        while (true) {
+            print(colorize(prompt, CYAN));
+            String input = scanner.nextLine().trim();
+            try {
+                int n = Integer.parseInt(input);
+                if (n >= 1 && n <= values.length) return values[n - 1];
+            } catch (NumberFormatException ignored) {}
+            println(colorize("Invalid input. Enter a number from the list.", RED));
+        }
+    }
+
+    private static int promptForInt(String prompt, int min, int max) {
+        while (true) {
+            print(colorize(prompt, CYAN));
+            String input = scanner.nextLine().trim();
+            try {
+                int n = Integer.parseInt(input);
+                if (n >= min && n <= max) return n;
+            } catch (NumberFormatException ignored) {}
+            println(colorize("Please enter a number between " + min + " and " + max + ".", RED));
+        }
+    }
+
+    private static void pressEnterToContinue() {
+        println();
+        print(colorize("Press Enter to continue...", MAGENTA));
+        scanner.nextLine();
+    }
+
+    private static String centerText(String text, int width) {
+        int pad = (width - text.length()) / 2;
+        return " ".repeat(Math.max(0, pad)) + text;
+    }
+
+    private static int getCumulativeCost(int score) {
+        if (score <= 8) return 0;
+        if (score > 15) return 9;
+        int cost = 0;
+        for (int s = 9; s <= score; s++) {
+            cost += POINT_BUY_COSTS[s - 8];
+        }
+        return cost;
+    }
+
+    private static void sleep(int ms) {
+        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+    }
+
