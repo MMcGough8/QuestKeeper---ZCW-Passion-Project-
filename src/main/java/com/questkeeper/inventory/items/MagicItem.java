@@ -82,7 +82,7 @@ public class MagicItem extends Item {
 
     public List<ItemEffect> getUsableEffects() {
         return effects.stream()
-                .filter(e -> !e.isPassive() && e.isUseable())
+                .filter(e -> !e.isPassive() && e.isUsable())
                 .collect(Collectors.toList());
     }
 
@@ -267,4 +267,28 @@ public class MagicItem extends Item {
         return charClass.contains(requirement);
     }
     
+    public void resetEffectsOnLongRest() {
+        for (ItemEffect effect : effects) {
+            effect.resetOnLongRest();
+        }
+    }
+
+    public void resetEffectsDaily() {
+        for (ItemEffect effect : effects) {
+            effect.resetDaily();
+        }
+    }
+
+    public boolean isFullyConsumed() {
+        if (effects.isEmpty()) {
+            return false;
+        }
+        return effects.stream()
+                .filter(e -> e.getUsageType() == UsageType.CONSUMABLE)
+                .allMatch(e -> !e.isUsable());
+    }
+
+    
+
 }
+
