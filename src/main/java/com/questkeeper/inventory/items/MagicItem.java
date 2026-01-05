@@ -93,3 +93,83 @@ public class MagicItem extends Item {
      public int getEffectCount() {
         return effects.size();
     }
+
+    public String use(Character user) {
+        if (!canUse(user)) {
+            throw new IllegalStateException(getCannotUseReason(user));
+        }
+
+        List<ItemEffect> usable = getUsableEffects();
+        if (usable.isEmpty()) {
+            return getName() + " has no usable effects right now.";
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (ItemEffect effect : usable) {
+            if (result.length() > 0) {
+                result.append("\n");
+            }
+            result.append(effect.use(user));
+        }
+
+        return result.toString();
+    }
+
+    public String useEffect(Character user, int effectIndex) {
+        if (!canUse(user)) {
+            throw new IllegalStateException(getCannotUseReason(user));
+        }
+
+        if (effectIndex < 0 || effectIndex >= effects.size()) {
+            throw new IndexOutOfBoundsException("Invalid effect index: " + effectIndex);
+        }
+
+        ItemEffect effect = effects.get(effectIndex);
+        if (effect.isPassive()) {
+            return effect.getName() + " is a passive effect and doesn't need activation.";
+        }
+        if (!effect.isUsable()) {
+            return effect.getName() + " cannot be used right now. " + effect.getChargeDisplay();
+        }
+
+        return effect.use(user);
+    }
+
+    public String useEffect(Character user, String effectName) {
+        if (!canUse(user)) {
+            throw new IllegalStateException(getCannotUseReason(user));
+        }
+
+        for (int i = 0; i < effects.size(); i++) {
+            if (effects.get(i).getName().equalsIgnoreCase(effectName)) {
+                return useEffect(user, i);
+            }
+        }
+
+        return "No effect named '" + effectName + "' found on " + getName() + ".";
+    }
+
+    public boolean canUse(Character user) {
+        if (user == null) {
+            return false;
+        }
+        if (requiresAttunement && !isAttunedTo(user)) {
+            return false;
+        }
+        return true;
+    }
+
+    public String getCannotUseReason(Character user) {
+        if (user == null) {
+            return "No user specified.";
+        }
+        if (requiresAttunement && !attuned) {
+            return getName() + " requires attunement before it can be used.";
+        }
+        if (requiresAttunement && !isAttunedTo(user)) {
+            return getName() + " is attuned to " + attunedToName + ", not " + user.getName() + ".";
+        }
+        return "";
+    }
+
+    
