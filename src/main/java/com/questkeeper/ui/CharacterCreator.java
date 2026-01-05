@@ -4,7 +4,7 @@ import com.questkeeper.character.Character;
 import com.questkeeper.character.Character.Ability;
 import com.questkeeper.character.Character.CharacterClass;
 import com.questkeeper.character.Character.Race;
-import com.questkeeper.core.Dice;
+
 
 import java.util.*;
 
