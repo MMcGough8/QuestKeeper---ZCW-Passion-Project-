@@ -128,3 +128,56 @@ public static Character createCharacter() {
     }
 
     
+    private static void pointBuySystem(Character character, Map<Ability, Integer> scores) {
+        clearScreen();
+        printBox("POINT BUY — 27 points available", 70, YELLOW);
+        println("Costs: 8→9 (1pt), 13→14 (2pt), 14→15 (2pt)\n");
+
+        int pointsLeft = POINT_BUY_TOTAL;
+
+        while (pointsLeft > 0) {
+            clearScreen();
+            printBox("POINT BUY — " + pointsLeft + " points remaining", 70, YELLOW);
+            println(bold("Current Scores (before racial bonuses):\n"));
+
+            for (Ability a : Ability.values()) {
+                int score = scores.get(a);
+                int costTo15 = getCumulativeCost(15) - getCumulativeCost(score);
+                String racial = character.getAbilityModifierFromRace(a) > 0
+                        ? colorize(" +" + character.getAbilityModifierFromRace(a), GREEN) : "";
+                println(String.format("  %s%-3s%s %s%-12s%s: %2d%s %s",
+                        colorize(a.getAbbreviation() + ":", CYAN),
+                        colorize("", WHITE),
+                        colorize("", WHITE),
+                        colorize("", WHITE),
+                        a.getFullName(),
+                        colorize("", WHITE),
+                        score,
+                        racial,
+                        costTo15 <= pointsLeft ? colorize("(→15: " + costTo15 + "pts)", MAGENTA) : ""));
+            }
+            println();
+
+            Ability ability = promptForEnum(Ability.values(), "Increase which ability? ");
+            int current = scores.get(ability);
+
+            if (current >= 15) {
+                println(colorize("Cannot exceed 15 before racial bonuses!", RED));
+                pressEnterToContinue();
+                continue;
+            }
+
+            int cost = POINT_BUY_COSTS[current - 7]; // index 0 = cost to go from 8→9
+            if (cost > pointsLeft) {
+                println(colorize("Not enough points!", RED));
+                pressEnterToContinue();
+                continue;
+            }
+
+            scores.put(ability, current + 1);
+            pointsLeft -= cost;
+            println(colorize("✓ " + ability.getFullName() + " → " + (current + 1) + " (-" + cost + " pts)", GREEN));
+            pressEnterToContinue();
+        }
+    }
+
