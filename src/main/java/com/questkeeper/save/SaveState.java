@@ -171,3 +171,33 @@ public class SaveState {
         saves.sort((a, b) -> b.timestamp().compareTo(a.timestamp()));
         return saves;
     }
+
+    private Map<String, Object> toMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        
+        map.put("save_version", saveVersion);
+        map.put("timestamp", timestamp.toString());
+        map.put("campaign_id", campaignId);
+        map.put("save_name", saveName);
+        
+        if (character != null) {
+            map.put("character", character.toMap());
+        }
+        
+        map.put("current_location", currentLocationId);
+        map.put("visited_locations", new ArrayList<>(visitedLocations));
+        
+        map.put("flags", stateFlags);
+        map.put("counters", stateCounters);
+        map.put("strings", stateStrings);
+        
+        map.put("inventory", inventoryItems);
+        map.put("equipped", equippedItems);
+        map.put("gold", gold);
+        
+        map.put("play_time_seconds", totalPlayTimeSeconds);
+        map.put("save_count", saveCount);
+        
+        return map;
+    }
+}
