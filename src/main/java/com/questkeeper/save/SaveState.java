@@ -314,5 +314,33 @@ public class SaveState {
         this.character = CharacterData.fromCharacter(c);
     }
 
-    
+    public void addItem(String itemId) {
+        inventoryItems.add(itemId);
+    }
+
+    public void removeItem(String itemId) {
+        inventoryItems.remove(itemId);
+    }
+
+    public void equipItem(String itemId) {
+        if (!equippedItems.contains(itemId)) {
+            equippedItems.add(itemId);
+        }
+    }
+
+    public void unequipItem(String itemId) {
+        equippedItems.remove(itemId);
+    }
+
+    public void addGold(int amount) {
+        this.gold += amount;
+    }
+
+    public boolean spendGold(int amount) {
+        if (gold >= amount) {
+            gold -= amount;
+            return true;
+        }
+        return false;
+    }
 }
