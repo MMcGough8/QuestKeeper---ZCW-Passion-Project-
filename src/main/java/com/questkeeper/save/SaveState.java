@@ -291,4 +291,17 @@ public class SaveState {
     public String getString(String key) {
         return stateStrings.get(key);
     }
+
+    public void setCurrentLocation(String locationId) {
+        this.currentLocationId = locationId;
+        if (locationId != null) {
+            this.visitedLocations.add(locationId);
+        }
+    }
+
+    public boolean hasVisited(String locationId) {
+        return visitedLocations.contains(locationId);
+    }
+
+    
 }
