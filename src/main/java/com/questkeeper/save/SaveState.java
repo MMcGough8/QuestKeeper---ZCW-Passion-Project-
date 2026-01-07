@@ -303,5 +303,16 @@ public class SaveState {
         return visitedLocations.contains(locationId);
     }
 
+    public Character restoreCharacter() {
+        if (character == null) {
+            throw new IllegalStateException("No character data in save state");
+        }
+        return character.toCharacter();
+    }
+
+    public void updateCharacter(Character c) {
+        this.character = CharacterData.fromCharacter(c);
+    }
+
     
 }
