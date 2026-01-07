@@ -6,6 +6,7 @@ import com.questkeeper.character.Character.CharacterClass;
 import com.questkeeper.character.Character.Race;
 import com.questkeeper.character.Character.Skill;
 
+import org.w3c.dom.CharacterData;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -78,4 +79,48 @@ public class SaveState {
         
         this.totalPlayTimeSeconds = 0;
         this.saveCount = 0;
+    }
+
+    /**
+     * Creates a SaveState from an existing Character.
+     */
+    public SaveState(Character character, String campaignId) {
+        this();
+        this.campaignId = campaignId;
+        this.saveName = character.getName() + " - " + campaignId;
+        this.character = CharacterData.fromCharacter(character);
+    }
+
+    /**
+     * Saves the game state to a YAML file.
+     * Uses atomic write (temp file + rename) for safety.
+     */
+    public void save(Path filepath) throws IOException {
+        this.timestamp = Instant.now();
+        this.saveCount++;
+        
+        // Ensure parent directory exists
+        Path parent = filepath.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+        
+        // Convert to Map for YAML serialization
+        Map<String, Object> data = toMap();
+        
+        // Configure YAML output
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+        options.setIndent(2);
+        Yaml yaml = new Yaml(options);
+        
+        // Atomic write: temp file then rename
+        Path tempFile = filepath.resolveSibling(filepath.getFileName() + ".tmp");
+        try (Writer writer = Files.newBufferedWriter(tempFile)) {
+            yaml.dump(data, writer);
+        }
+        Files.move(tempFile, filepath, 
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING,
+            java.nio.file.StandardCopyOption.ATOMIC_MOVE);
     }
