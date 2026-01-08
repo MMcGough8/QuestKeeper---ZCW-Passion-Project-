@@ -359,5 +359,30 @@ public class SaveState {
         }
     }
 
+    private static String sanitizeFilename(String name) {
+        return name.replaceAll("[^a-zA-Z0-9_-]", "_").toLowerCase();
+    }
+
+    private static String getString(Map<String, Object> map, String key, String defaultValue) {
+        Object val = map.get(key);
+        return val != null ? val.toString() : defaultValue;
+    }
+
+    private static int getInt(Map<String, Object> map, String key, int defaultValue) {
+        Object val = map.get(key);
+        if (val instanceof Number) {
+            return((Number) val).intValue();
+        }
+        return defaultValue;
+    }
+
+    private static long getLong(Map<String, Object> map, String key, Long defaultValue) {
+        Object val = map.get(key);
+        if (val instanceof Number) {
+            return((Number) val).longValue();
+        }
+        return defaultValue;
+    }
+
     
 }
