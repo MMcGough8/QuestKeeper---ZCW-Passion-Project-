@@ -94,49 +94,43 @@ public class CharacterData {
      * Restores a Character from CharacterData.
      */
     public Character toCharacter() {
-        // Parse enums
-        Race raceEnum = Race.valueOf(race);
-        CharacterClass classEnum = CharacterClass.valueOf(characterClass);
-        
-        // Create character
-        Character character = new Character(name, raceEnum, classEnum);
-        
-        // Set level first (affects HP calculation)
-        character.setLevel(level);
-        
-        // Restore ability scores
-        for (Map.Entry<String, Integer> entry : baseAbilityScores.entrySet()) {
-            Ability ability = Ability.valueOf(entry.getKey());
-            character.setAbilityScore(ability, entry.getValue());
-        }
-        
-        // Restore skill proficiencies
-        for (String skillName : skillProficiencies) {
-            try {
-                Skill skill = Skill.valueOf(skillName);
-                character.addSkillProficiency(skill);
-            } catch (IllegalArgumentException e) {
-                // Skip unknown skills (forward compatibility)
-            }
-        }
-        
-        // Restore combat state
-        character.setArmorBonus(armorBonus);
-        character.setShieldBonus(shieldBonus);
-        character.setTemporaryHitPoints(temporaryHitPoints);
-        
-        // Set HP after all modifiers are in place
-        // We need to heal/damage to reach the saved HP
-        int hpDifference = currentHitPoints - character.getCurrentHitPoints();
-        if (hpDifference > 0) {
-            character.heal(hpDifference);
-        } else if (hpDifference < 0) {
-            character.takeDamage(-hpDifference);
-        }
-        
-        return character;
+    // Parse enums
+    Race raceEnum = Race.valueOf(race);
+    CharacterClass classEnum = CharacterClass.valueOf(characterClass);
+    
+    // Create character
+    Character character = new Character(name, raceEnum, classEnum);
+    
+    // Restore ability scores FIRST (affects HP calculation)
+    for (Map.Entry<String, Integer> entry : baseAbilityScores.entrySet()) {
+        Ability ability = Ability.valueOf(entry.getKey());
+        character.setAbilityScore(ability, entry.getValue());
     }
-
+    
+    // Set level (will recalculate max HP)
+    character.setLevel(level);
+    character.setExperiencePoints(experiencePoints);
+    
+    // Restore skill proficiencies
+    for (String skillName : skillProficiencies) {
+        try {
+            Skill skill = Skill.valueOf(skillName);
+            character.addSkillProficiency(skill);
+        } catch (IllegalArgumentException e) {
+            // Skip unknown skills (forward compatibility)
+        }
+    }
+        
+    // Restore combat state
+    character.setArmorBonus(armorBonus);
+    character.setShieldBonus(shieldBonus);
+    character.setTemporaryHitPoints(temporaryHitPoints);
+        
+    // Restore HP by healing to full, then damaging to reach saved HP
+    character.setCurrentHitPoints(currentHitPoints);
+    
+    return character;
+}
     /**
      * Converts to Map for YAML serialization.
      */

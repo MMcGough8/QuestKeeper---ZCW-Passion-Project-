@@ -347,6 +347,14 @@ public class Character implements Combatant {
             }
         }
     }
+
+    public void setExperiencePoints(int xp) {
+        this.experiencePoints = Math.max(0, xp);
+    }
+
+    public void setCurrentHitPoints(int hp) {
+        this.currentHitPoints = Math.max(0, Math.min(hp, maxHitPoints));
+    }
     
     public void setAbilityScores(int str, int dex, int con, int intel, int wis, int cha) {
         baseAbilityScores.put(Ability.STRENGTH, clampAbilityScore(str));
