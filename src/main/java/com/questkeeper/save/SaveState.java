@@ -6,7 +6,6 @@ import com.questkeeper.character.Character.CharacterClass;
 import com.questkeeper.character.Character.Race;
 import com.questkeeper.character.Character.Skill;
 
-import org.w3c.dom.CharacterData;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -452,5 +451,66 @@ public class SaveState {
     public String toString() {
         return String.format("SaveState[%s, %s, %s, played: %s]",
             saveName, campaignId, timestamp, getFormattedPlayTime());
+    }
+
+    /**
+     * Lightweight save file info for listing saves without full load.
+     */
+    public record SaveInfo(
+        Path path,
+        String saveName,
+        String campaignId,
+        String characterName,
+        int characterLevel,
+        Instant timestamp,
+        String playTime
+    ) {
+        @SuppressWarnings("unchecked")
+        public static SaveInfo fromFile(Path path) throws IOException {
+            Yaml yaml = new Yaml();
+            try (Reader reader = Files.newBufferedReader(path)) {
+                Map<String, Object> data = yaml.load(reader);
+                
+                String saveName = getString(data, "save_name", "Unknown");
+                String campaignId = getString(data, "campaign_id", "unknown");
+                Instant timestamp = Instant.parse(getString(data, "timestamp", Instant.now().toString()));
+                
+                String characterName = "Unknown";
+                int characterLevel = 1;
+                Map<String, Object> charData = (Map<String, Object>) data.get("character");
+                if (charData != null) {
+                    characterName = getString(charData, "name", "Unknown");
+                    characterLevel = getInt(charData, "level", 1);
+                }
+                
+                long playSeconds = getLong(data, "play_time_seconds", 0);
+                long hours = playSeconds / 3600;
+                long minutes = (playSeconds % 3600) / 60;
+                String playTime = hours > 0 ? String.format("%dh %dm", hours, minutes) : String.format("%dm", minutes);
+                
+                return new SaveInfo(path, saveName, campaignId, characterName, characterLevel, timestamp, playTime);
+            }
+        }
+
+        private static String getString(Map<String, Object> map, String key, String defaultValue) {
+            Object val = map.get(key);
+            return val != null ? val.toString() : defaultValue;
+        }
+
+        private static int getInt(Map<String, Object> map, String key, int defaultValue) {
+            Object val = map.get(key);
+            if (val instanceof Number) {
+                return ((Number) val).intValue();
+            }
+            return defaultValue;
+        }
+
+        private static long getLong(Map<String, Object> map, String key, long defaultValue) {
+            Object val = map.get(key);
+            if (val instanceof Number) {
+                return ((Number) val).longValue();
+            }
+            return defaultValue;
+        }
     }
 }
