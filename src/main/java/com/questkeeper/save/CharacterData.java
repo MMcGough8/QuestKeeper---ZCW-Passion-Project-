@@ -136,4 +136,117 @@ public class CharacterData {
         
         return character;
     }
+
+    /**
+     * Converts to Map for YAML serialization.
+     */
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new LinkedHashMap<>();
+
+        map.put("name", name);
+        map.put("race", race);
+        map.put("class", characterClass);
+        map.put("level", level);
+        map.put("experience_points", experiencePoints);
+
+        map.put("ability_scores", new LinkedHashMap<>(baseAbilityScores));
+        map.put("skill_proficiencies", new ArrayList<>(skillProficiencies));
+        map.put("saving_throw_proficiencies", new ArrayList<> (savingThrowProficiencies));
+
+        map.put("current_hp", currentHitPoints);
+        map.put("max_hp", maxHitPoints);
+        map.put("temp_hp", temporaryHitPoints);
+        map.put("armor_bonus", armorBonus);
+        map.put("shield_bonus", shieldBonus);
+
+        return map;
+
+    }
+
+    /**
+     * Creates CharacterData from a Map (YAML deserialization).
+     */
+    @SuppressWarnings("unchecked")
+    public static CharacterData fromMap(Map<String, Object> data) {
+        CharacterData cd = new CharacterData();
+        
+        cd.name = (String) data.get("name");
+        cd.race = (String) data.get("race");
+        cd.characterClass = (String) data.get("class");
+        cd.level = getInt(data, "level", 1);
+        cd.experiencePoints = getInt(data, "experience_points", 0);
+        
+        // Ability scores
+        Map<String, Object> scores = (Map<String, Object>) data.get("ability_scores");
+        if (scores != null) {
+            for (Map.Entry<String, Object> entry : scores.entrySet()) {
+                cd.baseAbilityScores.put(entry.getKey(), ((Number) entry.getValue()).intValue());
+            }
+        }
+        
+        // Skills
+        List<String> skills = (List<String>) data.get("skill_proficiencies");
+        if (skills != null) {
+            cd.skillProficiencies = new HashSet<>(skills);
+        }
+        
+        // Saving throws
+        List<String> saves = (List<String>) data.get("saving_throw_proficiencies");
+        if (saves != null) {
+            cd.savingThrowProficiencies = new HashSet<>(saves);
+        }
+        
+        // Combat
+        cd.currentHitPoints = getInt(data, "current_hp", 10);
+        cd.maxHitPoints = getInt(data, "max_hp", 10);
+        cd.temporaryHitPoints = getInt(data, "temp_hp", 0);
+        cd.armorBonus = getInt(data, "armor_bonus", 0);
+        cd.shieldBonus = getInt(data, "shield_bonus", 0);
+        
+        return cd;
+    }
+
+    private static int getInt(Map<String, Object> map, String key, int defaultValue) {
+        Object val = map.get(key);
+        if (val instanceof Number) {
+            return ((Number) val).intValue();
+        }
+        return defaultValue;
+    }
+
+    public String getName() { 
+        return name; 
+    }
+
+    public String getRace() { 
+        return race; 
+    }
+
+    public String getCharacterClass() { 
+        return characterClass; 
+    }
+
+    public int getLevel() { 
+        return level; 
+    }
+
+    public int getExperiencePoints() { 
+        return experiencePoints; 
+    }
+
+    public int getCurrentHitPoints() { 
+        return currentHitPoints; 
+    }
+
+    public int getMaxHitPoints() { 
+        return maxHitPoints; 
+    }
+
+    @Override
+    public String toString() {
+        return String.format("CharacterData[%s, Level %d %s %s, HP: %d/%d]",
+            name, level, race, characterClass, currentHitPoints, maxHitPoints);
+    }
 }
+
+
