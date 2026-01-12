@@ -5,7 +5,7 @@ import com.questkeeper.combat.Monster;
 import com.questkeeper.inventory.Armor;
 import com.questkeeper.inventory.Item;
 import com.questkeeper.inventory.Weapon;
-import com.questkeeper.campaign.*;
+import com.questkeeper.campaign.CampaignLoader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -578,12 +578,13 @@ class CampaignLoaderTest {
                 """);
 
             loader = new CampaignLoader(campaignDir);
-            assertTrue(loader.load()); // Still returns true
+            assertTrue(loader.load()); // Returns true even with warnings
 
-            // Good monster should be loaded
-            assertEquals(1, loader.getMonsterTemplates().size());
-            assertTrue(loader.getMonsterTemplates().containsKey("bad_monster")); // Loaded with default type
-            assertTrue(loader.hasErrors());
+            // Both monsters should be loaded (bad one gets default type)
+            assertEquals(2, loader.getMonsterTemplates().size());
+            assertTrue(loader.getMonsterTemplates().containsKey("good_monster"));
+            assertTrue(loader.getMonsterTemplates().containsKey("bad_monster"));
+            assertTrue(loader.hasErrors()); // But errors were recorded
         }
 
         @Test
@@ -764,4 +765,3 @@ class CampaignLoaderTest {
         }
     }
 }
-
