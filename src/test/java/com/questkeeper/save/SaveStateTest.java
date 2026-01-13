@@ -1,11 +1,10 @@
-package com.questkeeper;
+package com.questkeeper.save;
 
 import com.questkeeper.character.Character;
 import com.questkeeper.character.Character.Ability;
 import com.questkeeper.character.Character.CharacterClass;
 import com.questkeeper.character.Character.Race;
 import com.questkeeper.character.Character.Skill;
-import com.questkeeper.save.*;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
@@ -13,14 +12,13 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for SaveState and CharacterData classes.
- * 
+ *
  * @author Marc McGough
  */
 @DisplayName("SaveState System")
@@ -328,7 +326,7 @@ class SaveStateTest {
         void savesAndLoads() throws IOException {
             Character character = createTestCharacter();
             character.takeDamage(5);
-            
+
             SaveState original = new SaveState(character, "muddlebrook");
             original.setCurrentLocation("town_hall");
             original.setFlag("met_norrin", true);

@@ -1,4 +1,4 @@
-package com.questkeeper;
+package com.questkeeper.campaign;
 
 import com.questkeeper.character.NPC;
 import com.questkeeper.combat.Monster;
@@ -6,7 +6,6 @@ import com.questkeeper.inventory.Armor;
 import com.questkeeper.inventory.Item;
 import com.questkeeper.inventory.Weapon;
 import com.questkeeper.world.Location;
-import com.questkeeper.campaign.CampaignLoader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the CampaignLoader class.
- * 
+ *
  * @author Marc McGough
  */
 @DisplayName("CampaignLoader Tests")

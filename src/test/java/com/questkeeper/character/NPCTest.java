@@ -1,11 +1,9 @@
-package com.questkeeper;
+package com.questkeeper.character;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import com.questkeeper.character.NPC;
 
 import java.util.List;
 
@@ -13,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test suite for the NPC class.
- * 
+ *
  * @author Marc McGough
  * @version 1.0
  */
@@ -36,7 +34,7 @@ class NPCTest {
         @DisplayName("creates NPC with all properties")
         void createsWithAllProperties() {
             NPC n = new NPC("guard", "Town Guard", "guard", "gruff", "suspicious");
-            
+
             assertEquals("guard", n.getId());
             assertEquals("Town Guard", n.getName());
             assertEquals("guard", n.getRole());
@@ -48,7 +46,7 @@ class NPCTest {
         @DisplayName("creates NPC with minimal properties")
         void createsWithMinimalProperties() {
             NPC n = new NPC("simple", "Simple NPC");
-            
+
             assertEquals("simple", n.getId());
             assertEquals("Simple NPC", n.getName());
             assertEquals("", n.getRole());
@@ -59,28 +57,28 @@ class NPCTest {
         @Test
         @DisplayName("throws exception for null ID")
         void throwsForNullId() {
-            assertThrows(IllegalArgumentException.class, 
+            assertThrows(IllegalArgumentException.class,
                     () -> new NPC(null, "Name"));
         }
 
         @Test
         @DisplayName("throws exception for empty ID")
         void throwsForEmptyId() {
-            assertThrows(IllegalArgumentException.class, 
+            assertThrows(IllegalArgumentException.class,
                     () -> new NPC("", "Name"));
         }
 
         @Test
         @DisplayName("throws exception for null name")
         void throwsForNullName() {
-            assertThrows(IllegalArgumentException.class, 
+            assertThrows(IllegalArgumentException.class,
                     () -> new NPC("id", null));
         }
 
         @Test
         @DisplayName("throws exception for empty name")
         void throwsForEmptyName() {
-            assertThrows(IllegalArgumentException.class, 
+            assertThrows(IllegalArgumentException.class,
                     () -> new NPC("id", ""));
         }
 
@@ -88,7 +86,7 @@ class NPCTest {
         @DisplayName("handles null optional properties gracefully")
         void handlesNullOptionalProperties() {
             NPC n = new NPC("id", "Name", null, null, null);
-            
+
             assertEquals("", n.getRole());
             assertEquals("", n.getVoice());
             assertEquals("", n.getPersonality());
@@ -138,7 +136,7 @@ class NPCTest {
         void setsShopkeeper() {
             npc.setShopkeeper(true);
             assertTrue(npc.isShopkeeper());
-            
+
             npc.setShopkeeper(false);
             assertFalse(npc.isShopkeeper());
         }
@@ -205,7 +203,7 @@ class NPCTest {
         @DisplayName("peekGreeting returns appropriate greeting based on met status")
         void peekReturnsAppropriateGreeting() {
             assertEquals("Hello, stranger!", npc.peekGreeting());
-            
+
             npc.markAsMet();
             assertEquals("Welcome back, friend!", npc.peekGreeting());
         }
@@ -215,7 +213,7 @@ class NPCTest {
         void handlesNullGreetings() {
             npc.setGreeting(null);
             npc.setReturnGreeting(null);
-            
+
             assertEquals("", npc.getGreeting());
             assertEquals("", npc.getReturnGreeting());
         }
@@ -229,7 +227,7 @@ class NPCTest {
         @DisplayName("adds and retrieves dialogue")
         void addsAndRetrievesDialogue() {
             npc.addDialogue("weather", "It's a fine day.");
-            
+
             assertEquals("It's a fine day.", npc.getDialogue("weather"));
         }
 
@@ -237,7 +235,7 @@ class NPCTest {
         @DisplayName("dialogue topics are case-insensitive")
         void dialogueCaseInsensitive() {
             npc.addDialogue("WEATHER", "It's a fine day.");
-            
+
             assertEquals("It's a fine day.", npc.getDialogue("weather"));
             assertEquals("It's a fine day.", npc.getDialogue("Weather"));
             assertEquals("It's a fine day.", npc.getDialogue("WEATHER"));
@@ -247,7 +245,7 @@ class NPCTest {
         @DisplayName("hasDialogue checks correctly")
         void hasDialogueWorks() {
             npc.addDialogue("weather", "It's a fine day.");
-            
+
             assertTrue(npc.hasDialogue("weather"));
             assertFalse(npc.hasDialogue("politics"));
         }
@@ -270,7 +268,7 @@ class NPCTest {
         void removesDialogue() {
             npc.addDialogue("weather", "It's a fine day.");
             npc.removeDialogue("weather");
-            
+
             assertFalse(npc.hasDialogue("weather"));
         }
 
@@ -280,9 +278,9 @@ class NPCTest {
             npc.addDialogue("zebras", "Stripy horses.");
             npc.addDialogue("apples", "Red fruit.");
             npc.addDialogue("mayor", "Important person.");
-            
+
             List<String> topics = npc.getAvailableTopics();
-            
+
             assertEquals(3, topics.size());
             assertEquals("apples", topics.get(0));
             assertEquals("mayor", topics.get(1));
@@ -293,10 +291,10 @@ class NPCTest {
         @DisplayName("getDialogueCount returns correct count")
         void getDialogueCountWorks() {
             assertEquals(0, npc.getDialogueCount());
-            
+
             npc.addDialogue("topic1", "Response 1");
             npc.addDialogue("topic2", "Response 2");
-            
+
             assertEquals(2, npc.getDialogueCount());
         }
 
@@ -307,7 +305,7 @@ class NPCTest {
             npc.addDialogue("", "Response");
             npc.addDialogue("   ", "Response");
             npc.addDialogue("valid", null);
-            
+
             assertEquals(0, npc.getDialogueCount());
         }
 
@@ -316,7 +314,7 @@ class NPCTest {
         void updatesExistingDialogue() {
             npc.addDialogue("weather", "It's sunny.");
             npc.addDialogue("weather", "It's raining now.");
-            
+
             assertEquals("It's raining now.", npc.getDialogue("weather"));
             assertEquals(1, npc.getDialogueCount());
         }
@@ -331,7 +329,7 @@ class NPCTest {
         void addsSampleLines() {
             npc.addSampleLine("Hello there!");
             npc.addSampleLine("Fine weather, isn't it?");
-            
+
             assertEquals(2, npc.getSampleLineCount());
             assertTrue(npc.getSampleLines().contains("Hello there!"));
         }
@@ -340,7 +338,7 @@ class NPCTest {
         @DisplayName("getRandomSampleLine returns a line")
         void getRandomSampleLineWorks() {
             npc.addSampleLine("Only line");
-            
+
             assertEquals("Only line", npc.getRandomSampleLine());
         }
 
@@ -356,7 +354,7 @@ class NPCTest {
             npc.addSampleLine(null);
             npc.addSampleLine("");
             npc.addSampleLine("   ");
-            
+
             assertEquals(0, npc.getSampleLineCount());
         }
 
@@ -364,8 +362,8 @@ class NPCTest {
         @DisplayName("sample lines list is unmodifiable")
         void sampleLinesUnmodifiable() {
             npc.addSampleLine("Test");
-            
-            assertThrows(UnsupportedOperationException.class, 
+
+            assertThrows(UnsupportedOperationException.class,
                     () -> npc.getSampleLines().add("Hacked!"));
         }
     }
@@ -400,7 +398,7 @@ class NPCTest {
         @DisplayName("flags are case-insensitive")
         void flagsCaseInsensitive() {
             npc.setFlag("QUEST_GIVEN");
-            
+
             assertTrue(npc.hasFlag("quest_given"));
             assertTrue(npc.hasFlag("Quest_Given"));
         }
@@ -410,7 +408,7 @@ class NPCTest {
         void removesFlag() {
             npc.setFlag("quest_given");
             npc.removeFlag("quest_given");
-            
+
             assertFalse(npc.hasFlag("quest_given"));
         }
 
@@ -419,7 +417,7 @@ class NPCTest {
         void returnsAllFlags() {
             npc.markAsMet();
             npc.setFlag("quest_given");
-            
+
             assertTrue(npc.getFlags().contains("met_player"));
             assertTrue(npc.getFlags().contains("quest_given"));
         }
@@ -433,7 +431,7 @@ class NPCTest {
         @Test
         @DisplayName("flags set is unmodifiable")
         void flagsUnmodifiable() {
-            assertThrows(UnsupportedOperationException.class, 
+            assertThrows(UnsupportedOperationException.class,
                     () -> npc.getFlags().add("hacked"));
         }
     }
@@ -446,7 +444,7 @@ class NPCTest {
         @DisplayName("generates full roleplay prompt")
         void generatesFullPrompt() {
             String prompt = npc.getRoleplayPrompt();
-            
+
             assertTrue(prompt.contains("merchant"));
             assertTrue(prompt.contains("friendly voice"));
             assertTrue(prompt.contains("helpful"));
@@ -456,7 +454,7 @@ class NPCTest {
         @DisplayName("handles missing properties in prompt")
         void handlesMissingProperties() {
             NPC simple = new NPC("id", "Name");
-            
+
             assertEquals("", simple.getRoleplayPrompt());
         }
 
@@ -464,7 +462,7 @@ class NPCTest {
         @DisplayName("handles partial properties in prompt")
         void handlesPartialProperties() {
             NPC partial = new NPC("id", "Name", "guard", "", "");
-            
+
             assertEquals("guard", partial.getRoleplayPrompt());
         }
     }
@@ -478,7 +476,7 @@ class NPCTest {
         void sameIdEquals() {
             NPC npc1 = new NPC("guard", "Guard One");
             NPC npc2 = new NPC("guard", "Guard Two");
-            
+
             assertEquals(npc1, npc2);
             assertEquals(npc1.hashCode(), npc2.hashCode());
         }
@@ -488,7 +486,7 @@ class NPCTest {
         void differentIdNotEquals() {
             NPC npc1 = new NPC("guard1", "Guard");
             NPC npc2 = new NPC("guard2", "Guard");
-            
+
             assertNotEquals(npc1, npc2);
         }
 
@@ -513,13 +511,13 @@ class NPCTest {
         @DisplayName("creates Norrin correctly")
         void createsNorrin() {
             NPC norrin = NPC.createNorrin();
-            
+
             assertEquals("norrin_bard", norrin.getId());
             assertEquals("Norrin", norrin.getName());
             assertEquals("bard", norrin.getRole());
             assertEquals("drunken_dragon_inn", norrin.getLocationId());
             assertFalse(norrin.isShopkeeper());
-            
+
             assertTrue(norrin.hasDialogue("mayor"));
             assertTrue(norrin.hasDialogue("rumors"));
             assertTrue(norrin.getSampleLineCount() > 0);
@@ -529,13 +527,13 @@ class NPCTest {
         @DisplayName("creates Mara correctly")
         void createsMara() {
             NPC mara = NPC.createMara();
-            
+
             assertEquals("mara_bartender", mara.getId());
             assertEquals("Mara Ember", mara.getName());
             assertEquals("bartender", mara.getRole());
             assertEquals("drunken_dragon_inn", mara.getLocationId());
             assertFalse(mara.isShopkeeper());
-            
+
             assertTrue(mara.hasDialogue("drinks"));
             assertTrue(mara.hasDialogue("mayor"));
         }
@@ -544,11 +542,11 @@ class NPCTest {
         @DisplayName("creates Darius correctly")
         void createsDarius() {
             NPC darius = NPC.createDarius();
-            
+
             assertEquals("darius_recluse", darius.getId());
             assertEquals("Darius", darius.getName());
             assertEquals("recluse", darius.getRole());
-            
+
             assertTrue(darius.hasDialogue("machinist"));
             assertTrue(darius.hasDialogue("trials"));
         }
@@ -557,13 +555,13 @@ class NPCTest {
         @DisplayName("creates Elara correctly")
         void createsElara() {
             NPC elara = NPC.createElara();
-            
+
             assertEquals("elara_shopkeeper", elara.getId());
             assertEquals("Elara", elara.getName());
             assertEquals("shopkeeper", elara.getRole());
             assertEquals("clockwork_curios", elara.getLocationId());
             assertTrue(elara.isShopkeeper());
-            
+
             assertTrue(elara.hasDialogue("shop"));
             assertTrue(elara.hasDialogue("backroom"));
         }
@@ -573,7 +571,7 @@ class NPCTest {
         void factoryNpcsHaveGreetings() {
             NPC norrin = NPC.createNorrin();
             NPC mara = NPC.createMara();
-            
+
             assertFalse(norrin.getGreeting().isEmpty());
             assertFalse(norrin.getReturnGreeting().isEmpty());
             assertFalse(mara.getGreeting().isEmpty());
@@ -584,7 +582,7 @@ class NPCTest {
         void factoryNpcsHaveDescriptions() {
             NPC norrin = NPC.createNorrin();
             NPC elara = NPC.createElara();
-            
+
             assertFalse(norrin.getDescription().isEmpty());
             assertFalse(elara.getDescription().isEmpty());
         }
@@ -599,9 +597,9 @@ class NPCTest {
         void formatsCorrectly() {
             npc.addDialogue("topic1", "Response");
             npc.addDialogue("topic2", "Response");
-            
+
             String str = npc.toString();
-            
+
             assertTrue(str.contains("test_npc"));
             assertTrue(str.contains("Test Character"));
             assertTrue(str.contains("merchant"));

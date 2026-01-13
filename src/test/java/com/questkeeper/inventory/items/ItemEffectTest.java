@@ -1,4 +1,4 @@
-package com.questkeeper;
+package com.questkeeper.inventory.items;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
