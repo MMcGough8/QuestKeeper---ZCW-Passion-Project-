@@ -344,4 +344,62 @@ class MonsterTest {
             assertEquals(2, basicMonster.getCharismaMod());
         }
     }
+
+    @Nested
+    @DisplayName("Special Ability Tests")
+    class SpecialAbilityTests {
+
+        @Test
+        @DisplayName("specialAbility is null by default")
+        void specialAbilityNullByDefault() {
+            assertNull(basicMonster.getSpecialAbility());
+            assertFalse(basicMonster.hasSpecialAbility());
+        }
+
+        @Test
+        @DisplayName("setSpecialAbility sets the ability")
+        void setSpecialAbility() {
+            basicMonster.setSpecialAbility("Disarm, Multiattack");
+            assertEquals("Disarm, Multiattack", basicMonster.getSpecialAbility());
+            assertTrue(basicMonster.hasSpecialAbility());
+        }
+
+        @Test
+        @DisplayName("hasSpecialAbility returns false for empty string")
+        void hasSpecialAbilityFalseForEmpty() {
+            basicMonster.setSpecialAbility("");
+            assertFalse(basicMonster.hasSpecialAbility());
+        }
+
+        @Test
+        @DisplayName("hasSpecialAbility returns false for null")
+        void hasSpecialAbilityFalseForNull() {
+            basicMonster.setSpecialAbility("Something");
+            basicMonster.setSpecialAbility(null);
+            assertFalse(basicMonster.hasSpecialAbility());
+        }
+
+        @Test
+        @DisplayName("copy preserves specialAbility")
+        void copyPreservesSpecialAbility() {
+            basicMonster.setSpecialAbility("Glitter Burst, Death Burst");
+            Monster copy = basicMonster.copy("copy_01");
+            assertEquals("Glitter Burst, Death Burst", copy.getSpecialAbility());
+        }
+
+        @Test
+        @DisplayName("getStatBlock includes specialAbility when present")
+        void statBlockIncludesSpecialAbility() {
+            basicMonster.setSpecialAbility("Multiattack, Razor Cane");
+            String statBlock = basicMonster.getStatBlock();
+            assertTrue(statBlock.contains("Special: Multiattack, Razor Cane"));
+        }
+
+        @Test
+        @DisplayName("getStatBlock excludes specialAbility when not present")
+        void statBlockExcludesSpecialAbilityWhenAbsent() {
+            String statBlock = basicMonster.getStatBlock();
+            assertFalse(statBlock.contains("Special:"));
+        }
+    }
 }

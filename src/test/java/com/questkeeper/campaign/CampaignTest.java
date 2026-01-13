@@ -358,6 +358,34 @@ class CampaignTest {
         }
 
         @Test
+        @DisplayName("loads special abilities from YAML")
+        void loadsSpecialAbilities() {
+            Monster critter = muddlebrook.getMonsterTemplate("clockwork_critter");
+            assertNotNull(critter.getSpecialAbility());
+            assertTrue(critter.hasSpecialAbility());
+            assertEquals("Disarm", critter.getSpecialAbility());
+        }
+
+        @Test
+        @DisplayName("loads multiple special abilities as comma-separated")
+        void loadsMultipleSpecialAbilities() {
+            Monster ooze = muddlebrook.getMonsterTemplate("confetti_ooze");
+            assertNotNull(ooze.getSpecialAbility());
+            assertTrue(ooze.getSpecialAbility().contains("Glitter Burst"));
+            assertTrue(ooze.getSpecialAbility().contains("Death Burst"));
+        }
+
+        @Test
+        @DisplayName("boss monster has all special abilities loaded")
+        void bossMonsterSpecialAbilities() {
+            Monster boss = muddlebrook.getMonsterTemplate("harlequin_machinist");
+            assertNotNull(boss.getSpecialAbility());
+            assertTrue(boss.getSpecialAbility().contains("Multiattack"));
+            assertTrue(boss.getSpecialAbility().contains("Razor Cane"));
+            assertTrue(boss.getSpecialAbility().contains("Curtain Call"));
+        }
+
+        @Test
         @DisplayName("returns all monster templates")
         void returnsAllTemplates() {
             Map<String, Monster> templates = muddlebrook.getMonsterTemplates();

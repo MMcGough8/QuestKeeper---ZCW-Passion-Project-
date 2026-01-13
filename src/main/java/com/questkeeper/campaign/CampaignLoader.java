@@ -228,6 +228,28 @@ class CampaignLoader {
             );
         }
 
+        // Parse special abilities - combine names into a comma-separated string
+        if (data.containsKey("special_abilities")) {
+            List<Map<String, Object>> specialAbilities =
+                (List<Map<String, Object>>) data.get("special_abilities");
+            if (specialAbilities != null && !specialAbilities.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < specialAbilities.size(); i++) {
+                    Map<String, Object> ability = specialAbilities.get(i);
+                    String abilityName = getString(ability, "name", "");
+                    if (!abilityName.isEmpty()) {
+                        if (sb.length() > 0) {
+                            sb.append(", ");
+                        }
+                        sb.append(abilityName);
+                    }
+                }
+                if (sb.length() > 0) {
+                    monster.setSpecialAbility(sb.toString());
+                }
+            }
+        }
+
         return monster;
     }
 

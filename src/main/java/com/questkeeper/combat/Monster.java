@@ -90,6 +90,7 @@ public class Monster implements Combatant {
     private String damageDice;
 
     private String description;
+    private String specialAbility;
 
     public Monster(String id, String name, int armorClass, int maxHitPoints) {
         this.id  = id;
@@ -107,6 +108,7 @@ public class Monster implements Combatant {
         this.attackBonus = 2;
         this.damageDice = "1d4";
         this.description = "";
+        this.specialAbility = null;
 
         this.strengthMod = 0;
         this.dexterityMod = 0;
@@ -205,6 +207,7 @@ public class Monster implements Combatant {
         copy.attackBonus = this.attackBonus;
         copy.damageDice = this.damageDice;
         copy.description = this.description;
+        copy.specialAbility = this.specialAbility;
         return copy;
     }
     
@@ -299,6 +302,18 @@ public class Monster implements Combatant {
         this.description = description;
     }
 
+    public String getSpecialAbility() {
+        return specialAbility;
+    }
+
+    public void setSpecialAbility(String specialAbility) {
+        this.specialAbility = specialAbility;
+    }
+
+    public boolean hasSpecialAbility() {
+        return specialAbility != null && !specialAbility.isEmpty();
+    }
+
     public void setAbilityModifiers(int str, int dex, int con, int intel, int wis, int cha) {
         this.strengthMod = str;
         this.dexterityMod = dex;
@@ -374,8 +389,11 @@ private String formatCR() {
         sb.append(String.format("INT %+d | WIS %+d | CHA %+d%n", intelligenceMod, wisdomMod, charismaMod));
         sb.append(String.format("───────────────────────────%n"));
         sb.append(String.format("Attack: +%d to hit, %s damage%n", attackBonus, damageDice));
+        if (hasSpecialAbility()) {
+            sb.append(String.format("Special: %s%n", specialAbility));
+        }
         sb.append(String.format("CR: %s (%d XP)", formatCR(), experienceValue));
-        
+
         if (!description.isEmpty()) {
             sb.append(String.format("%n%n%s", description));
         }
