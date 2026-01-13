@@ -286,6 +286,59 @@ class CampaignLoaderTest {
             Monster monster = loader.createMonster("weak_monster").orElseThrow();
             assertEquals(0.25, monster.getChallengeRating());
         }
+
+        @Test
+        @DisplayName("parses monster behavior from YAML")
+        void parsesMonsterBehavior() throws IOException {
+            createMonstersYaml("""
+                monsters:
+                  - id: cowardly_goblin
+                    name: Cowardly Goblin
+                    armor_class: 12
+                    hit_points: 7
+                    behavior: cowardly
+                  - id: tactical_orc
+                    name: Tactical Orc
+                    armor_class: 13
+                    hit_points: 15
+                    behavior: TACTICAL
+                  - id: default_rat
+                    name: Giant Rat
+                    armor_class: 10
+                    hit_points: 4
+                """);
+
+            loader = new CampaignLoader(campaignDir);
+            loader.load();
+
+            Monster cowardly = loader.createMonster("cowardly_goblin").orElseThrow();
+            Monster tactical = loader.createMonster("tactical_orc").orElseThrow();
+            Monster defaultBehavior = loader.createMonster("default_rat").orElseThrow();
+
+            assertEquals(Monster.Behavior.COWARDLY, cowardly.getBehavior());
+            assertEquals(Monster.Behavior.TACTICAL, tactical.getBehavior());
+            assertEquals(Monster.Behavior.AGGRESSIVE, defaultBehavior.getBehavior());  // Default
+        }
+
+        @Test
+        @DisplayName("records error for invalid behavior")
+        void recordsErrorForInvalidBehavior() throws IOException {
+            createMonstersYaml("""
+                monsters:
+                  - id: bad_behavior_monster
+                    name: Bad Monster
+                    armor_class: 10
+                    hit_points: 10
+                    behavior: invalid_behavior
+                """);
+
+            loader = new CampaignLoader(campaignDir);
+            loader.load();
+
+            assertTrue(loader.hasErrors());
+            assertTrue(loader.getLoadErrors().stream()
+                .anyMatch(e -> e.contains("Invalid behavior")));
+        }
     }
 
     // ==========================================

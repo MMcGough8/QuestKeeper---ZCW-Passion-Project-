@@ -807,4 +807,139 @@ class CombatSystemTest {
             assertTrue(result.isError());
         }
     }
+
+    // ==========================================
+    // Monster Behavior Tests
+    // ==========================================
+
+    @Nested
+    @DisplayName("Monster Behavior")
+    class MonsterBehaviorTests {
+
+        @Test
+        @DisplayName("monster defaults to aggressive behavior")
+        void monsterDefaultsToAggressive() {
+            Monster goblin = createGoblin();
+            assertEquals(Monster.Behavior.AGGRESSIVE, goblin.getBehavior());
+        }
+
+        @Test
+        @DisplayName("can set monster behavior")
+        void canSetMonsterBehavior() {
+            Monster goblin = createGoblin();
+            goblin.setBehavior(Monster.Behavior.COWARDLY);
+            assertEquals(Monster.Behavior.COWARDLY, goblin.getBehavior());
+        }
+
+        @Test
+        @DisplayName("isBloodied returns true at 50% HP")
+        void isBloodiedAtHalfHp() {
+            Monster goblin = new Monster("goblin", "Goblin", 10, 20);
+            assertFalse(goblin.isBloodied());
+
+            goblin.takeDamage(10);  // Now at 50%
+            assertTrue(goblin.isBloodied());
+        }
+
+        @Test
+        @DisplayName("isBloodied returns true below 50% HP")
+        void isBloodiedBelowHalfHp() {
+            Monster goblin = new Monster("goblin", "Goblin", 10, 20);
+            goblin.takeDamage(15);  // Now at 25%
+            assertTrue(goblin.isBloodied());
+        }
+
+        @Test
+        @DisplayName("getHpPercentage calculates correctly")
+        void getHpPercentageCalculatesCorrectly() {
+            Monster goblin = new Monster("goblin", "Goblin", 10, 100);
+            assertEquals(100, goblin.getHpPercentage());
+
+            goblin.takeDamage(50);
+            assertEquals(50, goblin.getHpPercentage());
+
+            goblin.takeDamage(25);
+            assertEquals(25, goblin.getHpPercentage());
+        }
+
+        @Test
+        @DisplayName("behavior is copied when monster is copied")
+        void behaviorIsCopied() {
+            Monster original = createGoblin();
+            original.setBehavior(Monster.Behavior.TACTICAL);
+
+            Monster copy = original.copy("goblin_copy");
+
+            assertEquals(Monster.Behavior.TACTICAL, copy.getBehavior());
+        }
+    }
+
+    // ==========================================
+    // Aggro Tracking Tests
+    // ==========================================
+
+    @Nested
+    @DisplayName("Aggro Tracking")
+    class AggroTrackingTests {
+
+        @Test
+        @DisplayName("attack records last attacker")
+        void attackRecordsLastAttacker() {
+            Monster goblin = new Monster("goblin", "Test Goblin", 5, 100);
+            goblin.setAttackBonus(0);
+            goblin.setDamageDice("1d1");
+            combatSystem.startCombat(state, List.of(goblin));
+
+            // Find player turn and attack
+            while (combatSystem.isInCombat() &&
+                   !(combatSystem.getCurrentCombatant() instanceof Character)) {
+                combatSystem.enemyTurn();
+            }
+
+            if (combatSystem.isInCombat()) {
+                CombatResult result = combatSystem.playerTurn("attack", null);
+
+                // If the attack hit, the goblin should remember who hit it
+                if (result.getType() == CombatResult.Type.ATTACK_HIT) {
+                    Combatant lastAttacker = combatSystem.getLastAttacker(goblin);
+                    assertNotNull(lastAttacker);
+                    assertEquals(character.getName(), lastAttacker.getName());
+                }
+            }
+        }
+
+        @Test
+        @DisplayName("getLastAttacker returns null before being hit")
+        void getLastAttackerReturnsNullInitially() {
+            Monster goblin = createGoblin();
+            combatSystem.startCombat(state, List.of(goblin));
+
+            Combatant lastAttacker = combatSystem.getLastAttacker(goblin);
+            assertNull(lastAttacker);
+        }
+    }
+
+    // ==========================================
+    // Behavior Enum Tests
+    // ==========================================
+
+    @Nested
+    @DisplayName("Behavior Enum")
+    class BehaviorEnumTests {
+
+        @Test
+        @DisplayName("all behavior types have display names")
+        void allBehaviorTypesHaveDisplayNames() {
+            for (Monster.Behavior behavior : Monster.Behavior.values()) {
+                assertNotNull(behavior.getDisplayName());
+                assertFalse(behavior.getDisplayName().isEmpty());
+            }
+        }
+
+        @Test
+        @DisplayName("behavior enum has four types")
+        void behaviorEnumHasFourTypes() {
+            assertEquals(4, Monster.Behavior.values().length);
+        }
+    }
 }

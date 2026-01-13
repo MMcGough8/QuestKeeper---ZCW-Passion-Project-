@@ -66,6 +66,26 @@ public class Monster implements Combatant {
         }
     }
 
+    /**
+     * Defines AI behavior patterns for combat.
+     */
+    public enum Behavior {
+        AGGRESSIVE("Aggressive"),   // Always attacks, never flees
+        COWARDLY("Cowardly"),       // Flees when bloodied
+        TACTICAL("Tactical"),       // Uses special abilities, targets last attacker
+        DEFENSIVE("Defensive");     // May flee when below 25% HP
+
+        private final String displayName;
+
+        Behavior(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+
     private final String id;
     private String name;
     private Size size;
@@ -91,6 +111,7 @@ public class Monster implements Combatant {
 
     private String description;
     private String specialAbility;
+    private Behavior behavior;
 
     public Monster(String id, String name, int armorClass, int maxHitPoints) {
         this.id  = id;
@@ -109,6 +130,7 @@ public class Monster implements Combatant {
         this.damageDice = "1d4";
         this.description = "";
         this.specialAbility = null;
+        this.behavior = Behavior.AGGRESSIVE;  // Default behavior
 
         this.strengthMod = 0;
         this.dexterityMod = 0;
@@ -194,6 +216,21 @@ public class Monster implements Combatant {
         this.currentHitPoints = this.maxHitPoints;
     }
 
+    /**
+     * Checks if the monster is bloodied (at or below 50% HP).
+     */
+    public boolean isBloodied() {
+        return currentHitPoints <= (maxHitPoints / 2);
+    }
+
+    /**
+     * Gets the monster's current HP as a percentage of max HP.
+     */
+    public int getHpPercentage() {
+        if (maxHitPoints == 0) return 0;
+        return (currentHitPoints * 100) / maxHitPoints;
+    }
+
     public Monster copy(String newId) {
         Monster copy = new Monster(newId, name, size, type, 
                 armorClass, maxHitPoints, speed, challengeRating,experienceValue);
@@ -208,6 +245,7 @@ public class Monster implements Combatant {
         copy.damageDice = this.damageDice;
         copy.description = this.description;
         copy.specialAbility = this.specialAbility;
+        copy.behavior = this.behavior;
         return copy;
     }
     
@@ -312,6 +350,14 @@ public class Monster implements Combatant {
 
     public boolean hasSpecialAbility() {
         return specialAbility != null && !specialAbility.isEmpty();
+    }
+
+    public Behavior getBehavior() {
+        return behavior;
+    }
+
+    public void setBehavior(Behavior behavior) {
+        this.behavior = behavior != null ? behavior : Behavior.AGGRESSIVE;
     }
 
     public void setAbilityModifiers(int str, int dex, int con, int intel, int wis, int cha) {

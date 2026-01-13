@@ -250,6 +250,16 @@ class CampaignLoader {
             }
         }
 
+        // Parse behavior (AI type)
+        String behaviorStr = getString(data, "behavior", null);
+        if (behaviorStr != null) {
+            try {
+                monster.setBehavior(Monster.Behavior.valueOf(behaviorStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                loadErrors.add("Invalid behavior '" + behaviorStr + "' for monster " + id);
+            }
+        }
+
         return monster;
     }
 

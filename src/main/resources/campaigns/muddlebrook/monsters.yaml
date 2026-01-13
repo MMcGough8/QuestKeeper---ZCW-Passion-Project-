@@ -17,6 +17,7 @@ monsters:
     xp: 50
     attack_bonus: 4
     damage_dice: "1d6+2"
+    behavior: cowardly  # Flees when bloodied (50% HP)
     abilities:
       str: -1
       dex: 2
@@ -49,6 +50,7 @@ monsters:
     xp: 100
     attack_bonus: 3
     damage_dice: "1d8+1"
+    behavior: defensive  # Flees when below 25% HP
     abilities:
       str: 1
       dex: -2
@@ -86,6 +88,7 @@ monsters:
     xp: 2900
     attack_bonus: 8
     damage_dice: "1d8+4"
+    behavior: tactical  # Uses special abilities, targets last attacker
     abilities:
       str: 0
       dex: 4

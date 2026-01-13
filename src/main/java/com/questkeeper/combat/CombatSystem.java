@@ -24,10 +24,12 @@ public class CombatSystem {
 
     private static final String DEFAULT_PLAYER_WEAPON = "1d8";
     private static final int FLEE_DC = 10;
+    private static final int ENEMY_FLEE_DC = 12;
 
     private List<Combatant> participants;
     private List<Combatant> initiative;
     private Map<Combatant, Integer> initiativeRolls;
+    private Map<Combatant, Combatant> lastAttacker;  // Tracks who hit each combatant last
     private int currentTurn;
     private GameState currentState;
     private boolean inCombat;
@@ -37,6 +39,7 @@ public class CombatSystem {
         this.participants = new ArrayList<>();
         this.initiative = new ArrayList<>();
         this.initiativeRolls = new HashMap<>();
+        this.lastAttacker = new HashMap<>();
         this.currentTurn = 0;
         this.currentState = null;
         this.inCombat = false;
@@ -63,6 +66,7 @@ public class CombatSystem {
         this.participants = new ArrayList<>();
         this.initiative = new ArrayList<>();
         this.initiativeRolls = new HashMap<>();
+        this.lastAttacker = new HashMap<>();
         this.currentTurn = 0;
         this.playerFled = false;
 
@@ -160,7 +164,7 @@ public class CombatSystem {
     }
 
     /**
-     * Executes an enemy's turn using basic AI.
+     * Executes an enemy's turn using behavior-based AI.
      */
     public CombatResult enemyTurn() {
         if (!inCombat) {
@@ -172,22 +176,84 @@ public class CombatSystem {
             return CombatResult.error("It's not an enemy's turn.");
         }
 
-        // Basic AI: Attack the player
-        Combatant player = getPlayer();
-        if (player == null || !player.isAlive()) {
+        Monster monster = (Monster) current;
+        Monster.Behavior behavior = monster.getBehavior();
+
+        // Check for flee behavior based on HP
+        if (shouldEnemyFlee(monster, behavior)) {
+            CombatResult fleeResult = attemptEnemyFlee(monster);
+            if (fleeResult != null) {
+                advanceTurn();
+                return fleeResult;
+            }
+            // Failed to flee, continue with attack
+        }
+
+        // Determine target based on aggro
+        Combatant target = selectTarget(monster);
+        if (target == null || !target.isAlive()) {
             return checkEndConditions();
         }
 
-        CombatResult attackResult = processAttack(current, player);
+        CombatResult attackResult = processAttack(monster, target);
 
-        // Check if player was defeated
-        if (!player.isAlive()) {
+        // Check if target was defeated
+        if (!target.isAlive() && target == getPlayer()) {
             advanceTurn();
-            return CombatResult.playerDefeated(player);
+            return CombatResult.playerDefeated(target);
         }
 
         advanceTurn();
         return attackResult;
+    }
+
+    /**
+     * Determines if an enemy should try to flee based on behavior.
+     */
+    private boolean shouldEnemyFlee(Monster monster, Monster.Behavior behavior) {
+        switch (behavior) {
+            case COWARDLY:
+                return monster.isBloodied();  // Flee at 50% HP
+            case DEFENSIVE:
+                return monster.getHpPercentage() <= 25;  // Flee at 25% HP
+            case AGGRESSIVE:
+            case TACTICAL:
+            default:
+                return false;  // Never flee
+        }
+    }
+
+    /**
+     * Attempts enemy flee with DEX check.
+     */
+    private CombatResult attemptEnemyFlee(Monster monster) {
+        int dexMod = monster.getDexterityMod();
+        boolean success = Dice.checkAgainstDC(dexMod, ENEMY_FLEE_DC);
+
+        if (success) {
+            // Remove monster from combat
+            participants.remove(monster);
+            initiative.remove(monster);
+
+            String message = String.format("%s flees from combat! [DEX check vs DC %d - SUCCESS]",
+                monster.getName(), ENEMY_FLEE_DC);
+            return CombatResult.error(message);  // Use error type for info message
+        }
+        return null;  // Failed to flee
+    }
+
+    /**
+     * Selects target based on aggro and behavior.
+     */
+    private Combatant selectTarget(Monster monster) {
+        // Check if someone hit this monster - target them first
+        Combatant attacker = lastAttacker.get(monster);
+        if (attacker != null && attacker.isAlive()) {
+            return attacker;
+        }
+
+        // Default: attack the player
+        return getPlayer();
     }
 
     /**
@@ -240,9 +306,9 @@ public class CombatSystem {
                 damage = monster.rollDamage();
                 target.takeDamage(damage);
 
-                if (!target.isAlive()) {
-                    return CombatResult.attackHit(attacker, target, attackRoll, targetAC, damage);
-                }
+                // Track aggro - target remembers who hit them
+                lastAttacker.put(target, attacker);
+
                 return CombatResult.attackHit(attacker, target, attackRoll, targetAC, damage);
             } else {
                 return CombatResult.attackMiss(attacker, target, attackRoll, targetAC);
@@ -258,6 +324,9 @@ public class CombatSystem {
                 damage = Dice.parse(DEFAULT_PLAYER_WEAPON) + strMod;
                 damage = Math.max(1, damage); // Minimum 1 damage
                 target.takeDamage(damage);
+
+                // Track aggro - target remembers who hit them
+                lastAttacker.put(target, attacker);
 
                 return CombatResult.attackHit(attacker, target, attackRoll, targetAC, damage);
             } else {
@@ -353,6 +422,13 @@ public class CombatSystem {
      */
     public int getInitiativeRoll(Combatant combatant) {
         return initiativeRolls.getOrDefault(combatant, 0);
+    }
+
+    /**
+     * Gets the last attacker of a combatant (for aggro tracking).
+     */
+    public Combatant getLastAttacker(Combatant target) {
+        return lastAttacker.get(target);
     }
 
     // ==========================================
