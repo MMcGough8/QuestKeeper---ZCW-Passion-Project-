@@ -5,6 +5,7 @@ import com.questkeeper.combat.Monster;
 import com.questkeeper.inventory.Armor;
 import com.questkeeper.inventory.Item;
 import com.questkeeper.inventory.Weapon;
+import com.questkeeper.world.Location;
 
 import org.yaml.snakeyaml.Yaml;
 
@@ -32,7 +33,7 @@ import java.util.Optional;
  *     monsters.yaml      - Monster templates
  *     npcs.yaml          - NPC definitions
  *     items.yaml         - Item definitions (weapons, armor, misc)
- *     locations.yaml     - Location definitions (future)
+ *     locations.yaml     - Location definitions with exits, NPCs, and items
  * 
  * @author Marc McGough
  * @version 1.0
@@ -43,6 +44,7 @@ public class CampaignLoader {
     private static final String MONSTERS_FILE = "monsters.yaml";
     private static final String NPCS_FILE = "npcs.yaml";
     private static final String ITEMS_FILE = "items.yaml";
+    private static final String LOCATIONS_FILE = "locations.yaml";
 
     private final Yaml yaml;
     private final Path campaignRoot;
@@ -61,6 +63,7 @@ public class CampaignLoader {
     private final Map<String, Item> items;
     private final Map<String, Weapon> weapons;
     private final Map<String, Armor> armors;
+    private final Map<String, Location> locations;
 
     // Loading state
     private boolean loaded;
@@ -76,7 +79,8 @@ public class CampaignLoader {
         this.items = new HashMap<>();
         this.weapons = new HashMap<>();
         this.armors = new HashMap<>();
-        
+        this.locations = new HashMap<>();
+
         this.loaded = false;
         this.loadErrors = new ArrayList<>();
     }
@@ -101,6 +105,7 @@ public class CampaignLoader {
         loadMonsters();
         loadNPCs();
         loadItems();
+        loadLocations();
 
         loaded = true;
         return true; 
@@ -339,6 +344,88 @@ public class CampaignLoader {
     }
 
     @SuppressWarnings("unchecked")
+    private void loadLocations() {
+        Path locationsFile = campaignRoot.resolve(LOCATIONS_FILE);
+
+        if (!Files.exists(locationsFile)) {
+            return;
+        }
+
+        try (InputStream is = Files.newInputStream(locationsFile)) {
+            Map<String, Object> data = yaml.load(is);
+
+            if (data == null || !data.containsKey("locations")) {
+                return;
+            }
+
+            List<Map<String, Object>> locationList = (List<Map<String, Object>>) data.get("locations");
+
+            for (Map<String, Object> locationData : locationList) {
+                try {
+                    Location location = parseLocation(locationData);
+                    locations.put(location.getId(), location);
+                } catch (Exception e) {
+                    loadErrors.add("Error parsing location: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            loadErrors.add("Error reading locations.yaml: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Location parseLocation(Map<String, Object> data) {
+        String id = getString(data, "id", "unknown_location");
+        String name = getString(data, "name", "Unknown Location");
+        String description = getString(data, "description", "");
+        String readAloudText = getString(data, "read_aloud_text", "");
+
+        Location location = new Location(id, name, description, readAloudText);
+
+        // Parse exits
+        if (data.containsKey("exits")) {
+            Map<String, String> exits = (Map<String, String>) data.get("exits");
+            for (Map.Entry<String, String> exit : exits.entrySet()) {
+                location.addExit(exit.getKey(), exit.getValue());
+            }
+        }
+
+        // Parse NPCs at this location
+        if (data.containsKey("npcs")) {
+            List<String> npcIds = (List<String>) data.get("npcs");
+            for (String npcId : npcIds) {
+                location.addNpc(npcId);
+            }
+        }
+
+        // Parse items at this location
+        if (data.containsKey("items")) {
+            List<String> itemIds = (List<String>) data.get("items");
+            for (String itemId : itemIds) {
+                location.addItem(itemId);
+            }
+        }
+
+        // Parse flags
+        if (data.containsKey("flags")) {
+            List<String> flags = (List<String>) data.get("flags");
+            for (String flag : flags) {
+                location.setFlag(flag);
+            }
+        }
+
+        // Handle locked flag specially
+        if (data.containsKey("flags")) {
+            List<String> flags = (List<String>) data.get("flags");
+            if (flags.contains("locked")) {
+                location.lock();
+            }
+        }
+
+        return location;
+    }
+
+    @SuppressWarnings("unchecked")
     private Weapon parseWeapon(Map<String, Object> data) {
         String name = getString(data, "name", "Unknown Weapon");
         int diceCount = getInt(data, "damage_dice_count", 1);
@@ -526,6 +613,21 @@ public class CampaignLoader {
         return Collections.unmodifiableMap(items);
     }
 
+    public Optional<Location> getLocation(String id) {
+        return Optional.ofNullable(locations.get(id));
+    }
+
+    public Map<String, Location> getAllLocations() {
+        return Collections.unmodifiableMap(locations);
+    }
+
+    public Optional<Location> getStartingLocation() {
+        if (startingLocationId == null) {
+            return Optional.empty();
+        }
+        return getLocation(startingLocationId);
+    }
+
     public String getCampaignId() {
         return campaignId;
     }
@@ -565,8 +667,9 @@ public class CampaignLoader {
     public String getLoadSummary() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("Campaign: %s (v%s) by %s%n", campaignName, campaignVersion, campaignAuthor));
-        sb.append(String.format("Monsters: %d | NPCs: %d%n", monsterTemplates.size(), npcs.size()));
-        sb.append(String.format("Weapons: %d | Armor: %d | Items: %d%n", 
+        sb.append(String.format("Locations: %d | Monsters: %d | NPCs: %d%n",
+                locations.size(), monsterTemplates.size(), npcs.size()));
+        sb.append(String.format("Weapons: %d | Armor: %d | Items: %d%n",
                 weapons.size(), armors.size(), items.size()));
         if (!loadErrors.isEmpty()) {
             sb.append(String.format("Warnings: %d%n", loadErrors.size()));

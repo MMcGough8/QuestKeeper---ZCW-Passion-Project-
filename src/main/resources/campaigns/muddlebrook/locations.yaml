@@ -45,6 +45,7 @@ locations:
       east: market_row
       west: clocktower_hill
       cemetery: cemetery
+      forest: whisperwood_edge
     npcs: []
     items: []
     flags: []
@@ -111,6 +112,7 @@ locations:
       west: town_square
       shop: clockwork_curios
       alley: back_alley
+      docks: fogline_docks
     npcs: []
     items: []
     flags: []
@@ -275,3 +277,113 @@ locations:
     items: []
     flags:
       - hidden
+
+  # ==========================================
+  # Fogline Docks - Optional Exploration Area
+  # ==========================================
+  - id: fogline_docks
+    name: Fogline Docks
+    description: |
+      A series of wooden piers jutting into the murky waters of Fogline Lake.
+      Fishing boats creak at their moorings, and the smell of fish mingles with fog.
+    read_aloud_text: |
+      The wooden planks groan under your feet as you walk onto the docks. Fog rolls
+      in from Fogline Lake, thick enough to taste. Fishing boats bob gently at their
+      moorings, nets draped over their sides like sleeping creatures. A weathered
+      fisherman mends his nets nearby, pointedly not looking at you. Somewhere out
+      on the water, a bell tolls—though you see no boats moving in the mist.
+    exits:
+      east: market_row
+      pier: abandoned_pier
+    npcs: []
+    items: []
+    flags: []
+
+  # ==========================================
+  # Abandoned Pier - Fogline Docks Extension
+  # ==========================================
+  - id: abandoned_pier
+    name: Abandoned Pier
+    description: |
+      A rotting pier at the far end of the docks. The planks are treacherous,
+      and something glints beneath the dark water.
+    read_aloud_text: |
+      The abandoned pier stretches into the fog like a skeletal finger. Warning signs
+      have been torn down or painted over with crude symbols. The planks here are
+      slick with algae and some have rotted through entirely. At the end, a rusted
+      mooring post leans at an angle—and tied to it, half-submerged, is a small
+      rowboat with no oars. Something shimmers beneath the water's surface.
+    exits:
+      back: fogline_docks
+    npcs: []
+    items: []
+    flags:
+      - hidden
+      - dangerous
+
+  # ==========================================
+  # Whisperwood Edge - Optional Exploration Area
+  # ==========================================
+  - id: whisperwood_edge
+    name: Whisperwood Edge
+    description: |
+      The treeline where Muddlebrook meets the ancient Whisperwood forest.
+      The trees seem to lean toward visitors, as if listening.
+    read_aloud_text: |
+      The cobblestones give way to a dirt path that ends abruptly at a wall of
+      ancient trees. The Whisperwood looms before you, its canopy so thick that
+      darkness pools beneath even at midday. Locals say the forest whispers to
+      those who listen—warnings, secrets, or lies depending on who you ask.
+      A faded sign reads: "Whisperwood - Enter at Own Risk. Town Not Responsible."
+    exits:
+      town: town_square
+      path: forest_path
+    npcs: []
+    items: []
+    flags: []
+
+  # ==========================================
+  # Forest Path - Whisperwood Interior
+  # ==========================================
+  - id: forest_path
+    name: Whispering Path
+    description: |
+      A narrow trail winding through the Whisperwood. The trees press close,
+      and sounds seem muffled—except for the whispers.
+    read_aloud_text: |
+      You step beneath the canopy and the world changes. Sound becomes muffled,
+      as if the forest has wrapped itself around you. The path winds between
+      massive oaks whose bark is carved with symbols you don't recognize. And
+      yes—there are whispers. Not words exactly, but almost. The rustle of leaves
+      that sounds like speech. The creak of branches that might be laughter.
+      Deeper in, you glimpse a clearing where pale mushrooms glow faintly.
+    exits:
+      back: whisperwood_edge
+      clearing: mushroom_clearing
+    npcs: []
+    items: []
+    flags:
+      - dangerous
+
+  # ==========================================
+  # Mushroom Clearing - Whisperwood Secret
+  # ==========================================
+  - id: mushroom_clearing
+    name: Glowing Clearing
+    description: |
+      A hidden clearing in the Whisperwood where bioluminescent mushrooms
+      cast an eerie blue-green glow. The whispers are louder here.
+    read_aloud_text: |
+      The path opens into a circular clearing bathed in ethereal light.
+      Mushrooms of every size grow in spiraling patterns, their caps glowing
+      with soft blue-green luminescence. At the center stands a stone pedestal,
+      ancient and moss-covered, with a shallow bowl carved into its top.
+      The whispers here are clearer—fragments of words, echoes of conversations
+      long past. Someone—or something—has been tending this place.
+    exits:
+      path: forest_path
+    npcs: []
+    items: []
+    flags:
+      - hidden
+      - magical
