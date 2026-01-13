@@ -2,6 +2,9 @@ package com.questkeeper.combat;
 
 import com.questkeeper.character.Character;
 import com.questkeeper.character.Character.Ability;
+import com.questkeeper.combat.status.Condition;
+import com.questkeeper.combat.status.ConditionEffect;
+import com.questkeeper.combat.status.StatusEffectManager;
 import com.questkeeper.core.Dice;
 import com.questkeeper.inventory.Inventory;
 import com.questkeeper.inventory.Item;
@@ -34,6 +37,7 @@ public class CombatSystem {
     private Map<Combatant, Integer> initiativeRolls;
     private Map<Combatant, Combatant> lastAttacker;  // Tracks who hit each combatant last
     private List<Item> droppedItems;  // Items dropped during combat (e.g., from Disarm)
+    private StatusEffectManager statusEffectManager;  // Tracks status effects on combatants
     private int currentTurn;
     private GameState currentState;
     private boolean inCombat;
@@ -45,6 +49,7 @@ public class CombatSystem {
         this.initiativeRolls = new HashMap<>();
         this.lastAttacker = new HashMap<>();
         this.droppedItems = new ArrayList<>();
+        this.statusEffectManager = new StatusEffectManager();
         this.currentTurn = 0;
         this.currentState = null;
         this.inCombat = false;
@@ -73,6 +78,7 @@ public class CombatSystem {
         this.initiativeRolls = new HashMap<>();
         this.lastAttacker = new HashMap<>();
         this.droppedItems = new ArrayList<>();
+        this.statusEffectManager = new StatusEffectManager();
         this.currentTurn = 0;
         this.playerFled = false;
 
@@ -124,13 +130,31 @@ public class CombatSystem {
             }
         }
 
+        // Process turn start effects (may expire conditions, deal damage, etc.)
+        List<String> turnStartMessages = statusEffectManager.processTurnStart(current);
+
+        // Check if combatant is incapacitated and can't act
+        if (!statusEffectManager.canTakeActions(current)) {
+            StringBuilder message = new StringBuilder();
+            message.append(String.format("%s is incapacitated and cannot act!", current.getName()));
+            if (!turnStartMessages.isEmpty()) {
+                message.append("\n").append(String.join("\n", turnStartMessages));
+            }
+            advanceTurn();
+            return CombatResult.error(message.toString());
+        }
+
         // If it's an enemy, execute AI turn
         if (isEnemy(current)) {
             return enemyTurn();
         }
 
-        // Player turn - return notification
-        return CombatResult.turnStart(current);
+        // Player turn - return notification (include any turn start messages)
+        CombatResult turnStart = CombatResult.turnStart(current);
+        if (!turnStartMessages.isEmpty()) {
+            // The turn start messages are logged separately but we return the basic turn start
+        }
+        return turnStart;
     }
 
     /**
@@ -313,6 +337,7 @@ public class CombatSystem {
 
     /**
      * Processes an attack from attacker to target.
+     * Takes into account status effects for advantage/disadvantage and auto-crits.
      */
     public CombatResult processAttack(Combatant attacker, Combatant target) {
         if (attacker == null || target == null) {
@@ -327,15 +352,37 @@ public class CombatSystem {
             return CombatResult.error(target.getName() + " is already defeated.");
         }
 
+        // Determine advantage/disadvantage from status effects
+        boolean hasAdvantage = statusEffectManager.hasAdvantageOnAttacks(attacker) ||
+                               statusEffectManager.attacksHaveAdvantageAgainst(target);
+        boolean hasDisadvantage = statusEffectManager.hasDisadvantageOnAttacks(attacker);
+
+        // Check if melee attacks auto-crit (paralyzed/unconscious targets)
+        boolean autoCrit = statusEffectManager.meleeCritsOnHit(target);
+
         int attackRoll;
         int damage;
         int targetAC = target.getArmorClass();
 
         if (attacker instanceof Monster monster) {
-            // Monster attack
-            attackRoll = monster.rollAttack();
+            // Monster attack - apply advantage/disadvantage
+            int attackBonus = monster.getAttackBonus();
+            if (hasAdvantage && !hasDisadvantage) {
+                attackRoll = Dice.rollWithAdvantage(attackBonus);
+            } else if (hasDisadvantage && !hasAdvantage) {
+                attackRoll = Dice.rollWithDisadvantage(attackBonus);
+            } else {
+                attackRoll = monster.rollAttack();
+            }
+
             if (attackRoll >= targetAC) {
                 damage = monster.rollDamage();
+
+                // Double damage dice on crit (simplified: just double the damage)
+                if (autoCrit) {
+                    damage *= 2;
+                }
+
                 target.takeDamage(damage);
 
                 // Track aggro - target remembers who hit them
@@ -343,6 +390,9 @@ public class CombatSystem {
 
                 // Check for special ability on hit
                 String specialEffect = processSpecialAbilityOnHit(monster, target);
+                if (autoCrit) {
+                    specialEffect = (specialEffect != null ? specialEffect + " " : "") + "[AUTO-CRIT!]";
+                }
 
                 return CombatResult.attackHit(attacker, target, attackRoll, targetAC, damage, specialEffect);
             } else {
@@ -352,18 +402,33 @@ public class CombatSystem {
             // Player attack: d20 + STR mod + proficiency
             int strMod = character.getAbilityModifier(Ability.STRENGTH);
             int profBonus = character.getProficiencyBonus();
-            attackRoll = Dice.rollD20() + strMod + profBonus;
+            int totalMod = strMod + profBonus;
+
+            if (hasAdvantage && !hasDisadvantage) {
+                attackRoll = Dice.rollWithAdvantage(totalMod);
+            } else if (hasDisadvantage && !hasAdvantage) {
+                attackRoll = Dice.rollWithDisadvantage(totalMod);
+            } else {
+                attackRoll = Dice.rollD20() + totalMod;
+            }
 
             if (attackRoll >= targetAC) {
                 // Damage: 1d8 + STR mod (simulating longsword)
                 damage = Dice.parse(DEFAULT_PLAYER_WEAPON) + strMod;
                 damage = Math.max(1, damage); // Minimum 1 damage
+
+                // Double damage on crit
+                if (autoCrit) {
+                    damage *= 2;
+                }
+
                 target.takeDamage(damage);
 
                 // Track aggro - target remembers who hit them
                 lastAttacker.put(target, attacker);
 
-                return CombatResult.attackHit(attacker, target, attackRoll, targetAC, damage);
+                String specialEffect = autoCrit ? "[AUTO-CRIT!]" : null;
+                return CombatResult.attackHit(attacker, target, attackRoll, targetAC, damage, specialEffect);
             } else {
                 return CombatResult.attackMiss(attacker, target, attackRoll, targetAC);
             }
@@ -467,6 +532,13 @@ public class CombatSystem {
     }
 
     /**
+     * Gets the status effect manager for this combat.
+     */
+    public StatusEffectManager getStatusEffectManager() {
+        return statusEffectManager;
+    }
+
+    /**
      * Gets items dropped during combat (e.g., from Disarm ability).
      */
     public List<Item> getDroppedItems() {
@@ -527,8 +599,15 @@ public class CombatSystem {
 
     /**
      * Advances to the next combatant's turn.
+     * Processes turn-end effects for the current combatant before advancing.
      */
     private void advanceTurn() {
+        // Process turn end effects for current combatant (saves, duration decrement)
+        Combatant current = getCurrentCombatant();
+        if (current != null && current.isAlive()) {
+            statusEffectManager.processTurnEnd(current);
+        }
+
         currentTurn = (currentTurn + 1) % initiative.size();
     }
 
@@ -794,6 +873,7 @@ public class CombatSystem {
 
     /**
      * Processes the Adhesive ability - target is stuck unless they pass STR save.
+     * On failure, applies the RESTRAINED condition with ongoing STR saves to escape.
      */
     private String processAdhesiveAbility(Monster monster, Combatant target) {
         int dc = 13;  // Default DC for Adhesive
@@ -801,6 +881,8 @@ public class CombatSystem {
 
         if (target instanceof Character character) {
             strMod = character.getAbilityModifier(Ability.STRENGTH);
+        } else if (target instanceof Monster targetMonster) {
+            strMod = targetMonster.getStrengthMod();
         }
 
         boolean saved = Dice.checkAgainstDC(strMod, dc);
@@ -808,8 +890,12 @@ public class CombatSystem {
         if (saved) {
             return String.format("[Adhesive: STR save DC %d - SAVED!]", dc);
         } else {
-            // TODO: Apply restrained condition when status effects are implemented
-            return String.format("[Adhesive: STR save DC %d - FAILED! %s is stuck!]",
+            // Apply RESTRAINED condition with STR save to escape each turn
+            ConditionEffect restrained = ConditionEffect.restrainedWithSave(Ability.STRENGTH, dc);
+            restrained.setSource(monster);
+            statusEffectManager.applyEffect(target, restrained);
+
+            return String.format("[Adhesive: STR save DC %d - FAILED! %s is RESTRAINED!]",
                 dc, target.getName());
         }
     }
