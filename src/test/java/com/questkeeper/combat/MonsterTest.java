@@ -19,12 +19,15 @@ class MonsterTest {
     private Monster basicMonster;
     private Monster clockworkCritter;
     private Monster confettiOoze;
-    
+
     @BeforeEach
     void setUp() {
         basicMonster = new Monster("goblin_01", "Goblin", 15, 20);
-        clockworkCritter = Monster.createClockworkCritter("critter_01");
-        confettiOoze = Monster.createConfettiOoze("ooze_01");
+        // Create test monsters with constructors instead of factory methods
+        clockworkCritter = new Monster("critter_01", "Clockwork Critter",
+                Monster.Size.SMALL, Monster.MonsterType.CONSTRUCT, 13, 11, 30, 0.25, 50);
+        confettiOoze = new Monster("ooze_01", "Confetti Ooze",
+                Monster.Size.MEDIUM, Monster.MonsterType.OOZE, 8, 30, 20, 0.5, 100);
     }
     
     @Nested
@@ -266,65 +269,21 @@ class MonsterTest {
     }
     
     @Nested
-    @DisplayName("Factory Method Tests")
-    class FactoryMethodTests {
-        
-        @Test
-        @DisplayName("createClockworkCritter has correct stats")
-        void clockworkCritterStats() {
-            assertEquals("Clockwork Critter", clockworkCritter.getName());
-            assertEquals(Monster.Size.SMALL, clockworkCritter.getSize());
-            assertEquals(Monster.MonsterType.CONSTRUCT, clockworkCritter.getType());
-            assertEquals(13, clockworkCritter.getArmorClass());
-            assertEquals(11, clockworkCritter.getMaxHitPoints());
-            assertEquals(0.25, clockworkCritter.getChallengeRating());
-            assertEquals(50, clockworkCritter.getExperienceValue());
-            assertEquals(4, clockworkCritter.getAttackBonus());
-            assertEquals("1d6+2", clockworkCritter.getDamageDice());
-        }
-        
-        @Test
-        @DisplayName("createConfettiOoze has correct stats")
-        void confettiOozeStats() {
-            assertEquals("Confetti Ooze", confettiOoze.getName());
-            assertEquals(Monster.Size.MEDIUM, confettiOoze.getSize());
-            assertEquals(Monster.MonsterType.OOZE, confettiOoze.getType());
-            assertEquals(8, confettiOoze.getArmorClass());
-            assertEquals(30, confettiOoze.getMaxHitPoints());
-            assertEquals(0.5, confettiOoze.getChallengeRating());
-            assertEquals(100, confettiOoze.getExperienceValue());
-        }
-        
-        @Test
-        @DisplayName("createHarlequinMachinist has boss stats")
-        void harlequinMachinistStats() {
-            Monster boss = Monster.createHarlequinMachinist("hm_01");
-            
-            assertEquals("Harlequin Machinist", boss.getName());
-            assertEquals(Monster.MonsterType.HUMANOID, boss.getType());
-            assertEquals(16, boss.getArmorClass());
-            assertEquals(110, boss.getMaxHitPoints());
-            assertEquals(7, boss.getChallengeRating());
-            assertEquals(2900, boss.getExperienceValue());
-            assertEquals(8, boss.getAttackBonus());
-        }
-    }
-    
-    @Nested
     @DisplayName("Copy and Utility Tests")
     class CopyUtilityTests {
         
         @Test
         @DisplayName("copy creates independent instance")
         void copyCreatesIndependentInstance() {
-            Monster original = Monster.createClockworkCritter("critter_original");
+            Monster original = new Monster("critter_original", "Clockwork Critter",
+                    Monster.Size.SMALL, Monster.MonsterType.CONSTRUCT, 13, 11, 30, 0.25, 50);
             Monster copy = original.copy("critter_copy");
-            
+
             assertEquals("critter_copy", copy.getId());
             assertEquals(original.getName(), copy.getName());
             assertEquals(original.getArmorClass(), copy.getArmorClass());
             assertEquals(original.getMaxHitPoints(), copy.getMaxHitPoints());
-            
+
             // Verify independence
             original.takeDamage(5);
             assertEquals(6, original.getCurrentHitPoints());

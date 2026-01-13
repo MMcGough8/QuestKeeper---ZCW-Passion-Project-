@@ -1,0 +1,378 @@
+# Mini-game definitions for Muddlebrook: Harlequin Trials
+# Each mini-game has D&D skill checks, rewards, and consequences
+
+minigames:
+  # ==========================================
+  # Trial #1 Mini-Games (Mayor's Office)
+  # ==========================================
+
+  - id: backwards_clock
+    name: "Backwards Clock"
+    type: MECHANISM
+    description: |
+      A grandfather clock on the wall ticks backwards, its hands spinning
+      counterclockwise. Something glints behind the glass face. The mechanism
+      seems delicate—one wrong move could trigger a shock.
+    hint: "The hands move backwards... perhaps the solution does too?"
+
+    required_skill: SLEIGHT_OF_HAND
+    alternate_skill: INVESTIGATION
+    dc: 12
+
+    reward_item: blinkstep_spark
+    reward_text: "You carefully extract a glowing crystal—a Blinkstep Spark!"
+
+    success_text: |
+      Your nimble fingers work the mechanism in reverse. The clock chimes
+      once, sweetly, and the face swings open to reveal a small compartment.
+
+    fail_text: |
+      The mechanism sparks violently! Lightning arcs through your fingers
+      as your hair stands on end.
+    fail_consequence: "1 lightning damage, hair stands up comically"
+    fail_damage: "1"
+
+  - id: puzzle_box
+    name: "Puzzle Box"
+    type: DECODE
+    description: |
+      An ornate wooden box sits on the desk, covered in sliding panels
+      and rotating rings marked with arcane symbols. It hums faintly
+      with magical energy. A faint lavender scent emanates from within.
+    hint: "The symbols follow a magical sequence—think like a wizard."
+
+    required_skill: ARCANA
+    alternate_skill: INVESTIGATION
+    dc: 13
+
+    reward_item: jesters_lucky_coin
+    reward_text: "The box clicks open, revealing a gleaming coin with a jester's face!"
+
+    success_text: |
+      You recognize the arcane pattern—it's a simple substitution cipher
+      based on the Celestial alphabet. The panels slide into place with
+      satisfying clicks.
+
+    fail_text: |
+      Wrong sequence! The box releases a puff of lavender gas directly
+      into your face. Your head swims and your aim feels... off.
+    fail_consequence: "-1 to attack rolls for 10 minutes"
+    fail_condition: "attack_penalty"
+    fail_condition_duration: 10
+
+  - id: stacked_bookshelf
+    name: "Stacked Bookshelf"
+    type: ALIGNMENT
+    description: |
+      A towering bookshelf leans precariously, books stacked in what seems
+      like an intentional but unstable pattern. One book glows faintly near
+      the top. The whole thing looks ready to collapse at a touch.
+    hint: "Balance and patience—remove the wrong book and it all comes down."
+
+    required_skill: ACROBATICS
+    alternate_skill: PERCEPTION
+    dc: 11
+
+    reward_item: featherfall_bookmark
+    reward_text: "You pluck the glowing book free—inside is a magical bookmark!"
+
+    success_text: |
+      With careful balance and keen observation, you identify the keystone
+      books and gently extract your prize without disturbing the rest.
+
+    fail_text: |
+      The shelf groans and collapses! Books rain down on your head
+      as you scramble to escape the avalanche.
+    fail_consequence: "1 bludgeoning damage from falling books"
+    fail_damage: "1"
+
+  - id: mechanical_frog_chase
+    name: "Mechanical Frog Chase"
+    type: TIMING
+    description: |
+      A brass mechanical frog sits on the desk, watching you with glass eyes.
+      As you approach, it suddenly springs to life and hops away! It seems
+      to be carrying something in its mouth—a small band or ring.
+    hint: "It responds to gentle handling better than force."
+
+    required_skill: ACROBATICS
+    alternate_skill: ANIMAL_HANDLING
+    dc: 10
+
+    reward_item: hoppers_jump_band
+    reward_text: "You catch the frog! It drops a stretchy band into your hands."
+
+    success_text: |
+      You anticipate the frog's hops and gently scoop it up. It clicks
+      contentedly and opens its mouth, releasing its treasure.
+
+    fail_text: |
+      The frog leaps directly into your shirt! Its cold brass body
+      wriggles against your chest as you flail in panic.
+    fail_consequence: "1 psychic damage from panic, frog in shirt"
+    fail_damage: "1"
+    fail_damage_type: "psychic"
+
+  - id: three_locks
+    name: "Three Locks"
+    type: MECHANISM
+    description: |
+      A drawer is secured with three different locks—a padlock, a combination
+      dial, and a strange keyhole shaped like a gear. Each seems to require
+      a different approach to open.
+    hint: "Three locks, three methods. Work smart, not hard."
+
+    required_skill: SLEIGHT_OF_HAND
+    alternate_skill: INVESTIGATION
+    dc: 14
+
+    reward_item: flash_powder_orb
+    reward_text: "The drawer opens, revealing glass orbs filled with sparkling powder!"
+
+    success_text: |
+      One by one, the locks yield to your expertise. The padlock pops,
+      the dial clicks, and the gear-lock rotates smoothly.
+
+    fail_text: |
+      A hidden needle jabs your finger and a drawer pops open releasing
+      a mechanical goat that screams directly into your face!
+    fail_consequence: "1 piercing damage, goat scream drawer"
+    fail_damage: "1"
+
+  - id: carpet_tile_puzzle
+    name: "Carpet Tile Puzzle"
+    type: ALIGNMENT
+    description: |
+      The carpet is made of removable tiles, each with a different symbol.
+      Some tiles glow faintly when stepped on. There seems to be a pattern—
+      step on the wrong one and... well, best not to find out.
+    hint: "Follow the sequence that matches the clock's backwards motion."
+
+    required_skill: PERCEPTION
+    alternate_skill: INVESTIGATION
+    dc: 12
+
+    reward_item: sigil_shard
+    reward_text: "The final tile rises, revealing a glowing crystal shard beneath!"
+
+    success_text: |
+      You trace the pattern across the tiles, each one chiming as you
+      step correctly. The sequence complete, a hidden compartment opens.
+
+    fail_text: |
+      Wrong tile! A spring-loaded board smacks your shin with
+      surprising force.
+    fail_consequence: "1 bludgeoning damage, shin smack"
+    fail_damage: "1"
+
+  # ==========================================
+  # Trial #2 Mini-Games (Clocktower)
+  # ==========================================
+
+  - id: gear_alignment
+    name: "Align the Gears"
+    type: ALIGNMENT
+    description: |
+      A massive array of interlocking gears blocks the path forward.
+      Each gear has symbols etched into its teeth. Rotating them in the
+      right sequence should open the way—but one wrong turn could jam
+      the whole mechanism.
+    hint: "The symbols tell a story. Read them in order."
+
+    required_skill: INVESTIGATION
+    alternate_skill: ARCANA
+    dc: 13
+
+    reward_item: gearbreakers_kit
+    reward_text: "The gears align perfectly, revealing a toolkit hidden in the mechanism!"
+
+    success_text: |
+      Click by click, the gears rotate into alignment. With a satisfying
+      clunk, the mechanism unlocks and the path opens.
+
+    fail_text: |
+      The gears jam with a horrible grinding noise! Sparks fly as metal
+      scrapes against metal.
+    fail_consequence: "Loud noise alerts nearby creatures"
+    fail_damage: "0"
+
+  - id: pendulum_timing
+    name: "Time the Pendulum"
+    type: TIMING
+    description: |
+      Massive pendulums swing through the chamber in unpredictable patterns.
+      You need to cross to the other side without getting swept away.
+      Timing is everything.
+    hint: "Watch the pattern. There's always a safe moment."
+
+    required_skill: ACROBATICS
+    alternate_skill: PERCEPTION
+    dc: 14
+
+    reward_item: brass_pocket_watch
+    reward_text: "You snag a brass pocket watch from a pendulum as you pass!"
+
+    success_text: |
+      You watch, wait, and move with precision. The pendulums swing past
+      harmlessly as you dance through their deadly rhythm.
+
+    fail_text: |
+      A pendulum clips you, sending you tumbling across the floor!
+    fail_consequence: "1d4 bludgeoning damage, knocked prone"
+    fail_damage: "1d4"
+
+  - id: chain_climb
+    name: "Chain Climb"
+    type: SKILL_CHECK
+    description: |
+      Heavy chains hang from the upper mechanism. Climbing them is the
+      only way up, but they're slick with oil and some links look weak.
+    hint: "Test each link before trusting your weight to it."
+
+    required_skill: ATHLETICS
+    alternate_skill: ACROBATICS
+    dc: 12
+
+    reward_text: "You reach the upper platform safely!"
+
+    success_text: |
+      Hand over hand, you pull yourself up the chain, testing each link.
+      The climb is exhausting but you make it to the top.
+
+    fail_text: |
+      A link gives way! You slide down the oily chain, burning your palms.
+    fail_consequence: "1d4 slashing damage to hands"
+    fail_damage: "1d4"
+
+  - id: pressure_plates
+    name: "Pressure Plates"
+    type: MECHANISM
+    description: |
+      The floor is covered in pressure plates. Some click ominously when
+      stepped on. A pattern of safe tiles leads across—if you can figure
+      it out in time.
+    hint: "The musical notes carved on each plate are a clue."
+
+    required_skill: PERCEPTION
+    alternate_skill: PERFORMANCE
+    dc: 13
+
+    reward_item: whispering_stone
+    reward_text: "A safe contains a smooth stone that whispers when touched!"
+
+    success_text: |
+      You hum the melody as you step, each plate chiming in harmony.
+      The sequence complete, a hidden safe clicks open.
+
+    fail_text: |
+      A wrong note! Gas hisses from vents as you stumble to safety.
+    fail_consequence: "Poisoned condition for 1 minute"
+    fail_condition: "poisoned"
+    fail_condition_duration: 1
+
+  - id: find_workshop
+    name: "Find the Workshop"
+    type: SEARCH
+    description: |
+      The Machinist's workshop is hidden somewhere in this chamber.
+      There must be a secret entrance—a panel, a lever, something that
+      doesn't belong.
+    hint: "Look for where the dust has been disturbed."
+
+    required_skill: INVESTIGATION
+    alternate_skill: PERCEPTION
+    dc: 15
+
+    reward_text: "You discover the hidden entrance to the Machinist's workshop!"
+
+    success_text: |
+      There! A section of wall where the dust pattern is wrong. You press
+      it and a hidden door swings open, revealing a cluttered workshop.
+
+    fail_text: |
+      You trigger a false panel and a bucket of oil dumps on your head.
+    fail_consequence: "Covered in oil, disadvantage on grapple checks"
+    fail_damage: "0"
+
+  # ==========================================
+  # Trial #3 Mini-Games (Harlequin's Stage)
+  # ==========================================
+
+  - id: confront_machinist
+    name: "Confront the Machinist"
+    type: DIALOGUE
+    description: |
+      The Harlequin Machinist monologues from the stage. This is your
+      chance to engage—distract, negotiate, or find a weakness in their
+      theatrical armor.
+    hint: "Every performer has an ego. Use it."
+
+    required_skill: PERSUASION
+    alternate_skill: DECEPTION
+    dc: 15
+
+    reward_text: "The Machinist is momentarily thrown off their script!"
+
+    success_text: |
+      Your words find their mark. The Machinist pauses, genuinely
+      surprised. "Well well... an ad-lib! How delightful. Perhaps you
+      deserve a... revised ending."
+
+    fail_text: |
+      The Machinist laughs off your attempt. "A poor performance!
+      Let me show you how it's done."
+    fail_consequence: "Machinist gains advantage on next action"
+    fail_damage: "0"
+
+  - id: clockwork_cage
+    name: "Free the Mayor"
+    type: MECHANISM
+    description: |
+      Mayor Alderwick is trapped in an elaborate clockwork cage. Gears
+      and springs hold it shut, and a timer ticks down ominously.
+      You need to disable it before time runs out.
+    hint: "The timer is connected to the lock. Stop one, stop both."
+
+    required_skill: SLEIGHT_OF_HAND
+    alternate_skill: INVESTIGATION
+    dc: 16
+
+    reward_text: "The cage springs open! Mayor Alderwick is free!"
+
+    success_text: |
+      Your fingers fly across the mechanism, disabling springs and
+      stopping gears. With a final click, the cage opens and the mayor
+      stumbles out, shaken but alive.
+
+    fail_text: |
+      The mechanism triggers a secondary trap! Gears grind as the cage
+      begins to slowly compress.
+    fail_consequence: "Mayor takes 1d6 damage, second attempt at higher DC"
+    fail_damage: "1d6"
+
+  - id: decide_fate
+    name: "Decide the Fate"
+    type: CHOICE
+    description: |
+      The Machinist stands before you, defeated but defiant. The choice
+      is yours: justice, mercy, or something else entirely. Whatever
+      you decide will shape Muddlebrook's future.
+    hint: "There is no wrong answer—only consequences."
+
+    required_skill: INSIGHT
+    alternate_skill: PERSUASION
+    dc: 10
+
+    reward_item: cloak_pin_minor_disguise
+    reward_text: "The Machinist offers a parting gift—a token of 'professional respect.'"
+
+    success_text: |
+      You make your choice with conviction. The Machinist accepts it
+      with a theatrical bow. "A fitting ending. Until the sequel,
+      perhaps..."
+
+    fail_text: |
+      Your hesitation shows. The Machinist smirks. "Not sure? How
+      disappointing. Allow me to decide for you."
+    fail_consequence: "Machinist escapes, leaving chaos behind"
+    fail_damage: "0"

@@ -442,66 +442,6 @@ class LocationTest {
     }
 
     @Nested
-    @DisplayName("Factory Methods")
-    class FactoryMethodTests {
-
-        @Test
-        @DisplayName("creates Drunken Dragon Inn correctly")
-        void createsDrunkenDragonInn() {
-            Location inn = Location.createDrunkenDragonInn();
-            
-            assertEquals("drunken_dragon_inn", inn.getId());
-            assertEquals("The Drunken Dragon Inn", inn.getName());
-            assertTrue(inn.hasExit("north"));
-            assertTrue(inn.hasExit("door"));
-            assertTrue(inn.hasNpc("norrin_bard"));
-            assertTrue(inn.hasNpc("mara_bartender"));
-        }
-
-        @Test
-        @DisplayName("creates Town Square with correct exits")
-        void createsTownSquare() {
-            Location square = Location.createTownSquare();
-            
-            assertEquals("town_square", square.getId());
-            assertTrue(square.hasExit("north"));
-            assertTrue(square.hasExit("south"));
-            assertTrue(square.hasExit("east"));
-            assertTrue(square.hasExit("west"));
-            assertEquals("drunken_dragon_inn", square.getExit("south"));
-        }
-
-        @Test
-        @DisplayName("creates Mayor's Office as trial location")
-        void createsMayorsOffice() {
-            Location office = Location.createMayorsOffice();
-            
-            assertEquals("mayors_office", office.getId());
-            assertTrue(office.hasFlag("trial_location"));
-            assertTrue(office.hasExit("downstairs"));
-        }
-
-        @Test
-        @DisplayName("creates Clocktower Hill as locked")
-        void createsClocktowerHillLocked() {
-            Location hill = Location.createClocktowerHill();
-            
-            assertEquals("clocktower_hill", hill.getId());
-            assertFalse(hill.isUnlocked());
-        }
-
-        @Test
-        @DisplayName("creates Clockwork Curios with Elara")
-        void createsClockworkCurios() {
-            Location shop = Location.createClockworkCurios();
-            
-            assertEquals("clockwork_curios", shop.getId());
-            assertTrue(shop.hasNpc("elara_shopkeeper"));
-            assertTrue(shop.hasExit("out"));
-        }
-    }
-
-    @Nested
     @DisplayName("toString")
     class ToStringTests {
 

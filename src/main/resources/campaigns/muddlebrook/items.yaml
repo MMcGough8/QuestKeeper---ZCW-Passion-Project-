@@ -292,3 +292,206 @@ items:
     weight: 0.5
     value: 30
     rarity: COMMON
+
+# ==========================================
+# Magic Items - Trial Rewards (Tier 1)
+# Based on Muddlebrook Story Document
+# ==========================================
+magic_items:
+  # ------------------------------------------
+  # Trial #1 Rewards
+  # ------------------------------------------
+  - id: blinkstep_spark
+    name: Blinkstep Spark
+    type: WONDROUS
+    description: |
+      A tiny crystal that crackles with contained lightning. When activated,
+      it allows you to teleport a short distance in the blink of an eye.
+    effect_type: TELEPORT
+    effect_description: "Teleport up to 10 feet to an unoccupied space you can see."
+    usage_type: LONG_REST
+    charges: 1
+    weight: 0.1
+    value: 150
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  - id: jesters_lucky_coin
+    name: Jester's Lucky Coin
+    type: WONDROUS
+    description: |
+      A gold coin with a laughing jester on one side and a weeping one on
+      the other. Flip it for luck—but luck cuts both ways.
+    effect_type: BONUS_ROLL
+    effect_description: |
+      Once per day, flip the coin before a roll. On heads, add 1d4 to the roll.
+      On tails, take 1 psychic damage as the jester's laughter rings in your ears.
+    usage_type: DAILY
+    charges: 1
+    weight: 0.1
+    value: 100
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  - id: featherfall_bookmark
+    name: Featherfall Bookmark
+    type: WONDROUS
+    description: |
+      A pressed feather preserved between thin sheets of enchanted glass.
+      When falling, snap it and drift gently to safety.
+    effect_type: SPELL
+    effect_description: "Cast Feather Fall on yourself (self only)."
+    spell_name: "Feather Fall"
+    usage_type: DAILY
+    charges: 1
+    weight: 0.1
+    value: 100
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  - id: hoppers_jump_band
+    name: Hopper's Jump Band
+    type: WONDROUS
+    description: |
+      A stretchy brass band that fits around your wrist or ankle. It's
+      inscribed with tiny frog symbols and springs slightly when touched.
+    effect_type: MOVEMENT
+    effect_description: |
+      Your jump distance is tripled for 1 minute. You also gain advantage
+      on Athletics checks made to jump.
+    usage_type: LONG_REST
+    charges: 1
+    weight: 0.1
+    value: 100
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  - id: sigil_shard
+    name: Sigil Shard
+    type: WONDROUS
+    description: |
+      A fragment of crystal etched with a protective sigil. It glows
+      faintly when danger approaches.
+    effect_type: DAMAGE_REDUCTION
+    effect_description: |
+      As a reaction when you take damage, reduce that damage by 2.
+    usage_type: DAILY
+    charges: 1
+    weight: 0.1
+    value: 75
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  - id: flash_powder_orb
+    name: Flash Powder Orb
+    type: WONDROUS
+    description: |
+      A delicate glass orb filled with glittering powder. Throw it to
+      create a blinding flash. Handle with care.
+    effect_type: UTILITY
+    effect_description: |
+      Throw at a point within 20 feet. Creatures within 10 feet must
+      succeed on a DC 12 Constitution save or be blinded until the end
+      of their next turn.
+    usage_type: CONSUMABLE
+    charges: 1
+    weight: 0.2
+    value: 50
+    rarity: COMMON
+    requires_attunement: false
+    consumable: true
+
+  # ------------------------------------------
+  # Trial #2 Rewards
+  # ------------------------------------------
+  - id: whispering_stone
+    name: Whispering Stone
+    type: WONDROUS
+    description: |
+      A smooth river stone that's warm to the touch. Speak into it and
+      your words reach your allies' ears, no matter the distance.
+    effect_type: UTILITY
+    effect_description: |
+      Once per day, send a whispered message of up to 25 words to any
+      creature you've met. They can reply with a message of equal length.
+    usage_type: DAILY
+    charges: 1
+    weight: 0.2
+    value: 150
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  - id: gearbreakers_kit
+    name: Gearbreaker's Kit
+    type: TOOL
+    description: |
+      A leather pouch containing specialized tools for disabling clockwork
+      mechanisms. Each tool is precisely calibrated for different gear sizes.
+    effect_type: SKILL_BONUS
+    effect_description: |
+      Gain +2 to checks made to disable mechanical traps or clockwork devices.
+    usage_type: CHARGES
+    charges: 3
+    max_charges: 3
+    weight: 1.0
+    value: 100
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  # ------------------------------------------
+  # Trial #3 Rewards / Shop Items
+  # ------------------------------------------
+  - id: cloak_pin_minor_disguise
+    name: Cloak Pin of Minor Disguise
+    type: WONDROUS
+    description: |
+      A small brass pin depicting a theatrical mask. When worn, it grants
+      limited ability to alter your appearance.
+    effect_type: UTILITY
+    effect_description: |
+      Change your voice and facial features subtly for 10 minutes. You
+      appear as a generic member of your race, not a specific person.
+      Does not change clothing, height, or body shape.
+    usage_type: DAILY
+    charges: 1
+    weight: 0.1
+    value: 200
+    rarity: UNCOMMON
+    requires_attunement: false
+
+  - id: harlequins_favor
+    name: Harlequin's Favor
+    type: WONDROUS
+    description: |
+      A coin bearing the Harlequin Machinist's laughing mask. A trophy—
+      or a mark—from completing one of his trials. The Machinist always
+      knows when you use it.
+    effect_type: BONUS_ROLL
+    effect_description: |
+      Spend the coin to gain advantage on any one roll. The Machinist
+      is magically aware when you use this favor.
+    usage_type: CONSUMABLE
+    charges: 1
+    weight: 0.1
+    value: 0
+    rarity: RARE
+    requires_attunement: false
+    consumable: true
+    special_notes: "The Machinist knows when you use this item."
+
+  - id: harlequins_mask
+    name: Harlequin's Mask
+    type: WONDROUS
+    description: |
+      The signature mask of the Harlequin Machinist, now yours. It radiates
+      theatrical energy and grants enhanced presence.
+    effect_type: STAT_BONUS
+    effect_description: |
+      While wearing the mask, you have advantage on Performance and
+      Intimidation checks. You also gain resistance to psychic damage.
+    usage_type: PASSIVE
+    weight: 0.5
+    value: 500
+    rarity: RARE
+    requires_attunement: true
+    attunement_requirements: "Requires attunement"

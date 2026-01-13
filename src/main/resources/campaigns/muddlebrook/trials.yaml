@@ -1,0 +1,116 @@
+# Trial definitions for Muddlebrook: Harlequin Trials
+# Each trial is a theatrical puzzle room with mini-games
+
+trials:
+  # ==========================================
+  # Trial #1: The Mayor's Disappearance
+  # Location: Mayor's Office (Town Hall)
+  # ==========================================
+  - id: trial_01
+    name: "The Mayor's Disappearance"
+    location_id: mayors_office
+
+    entry_narrative: |
+      You step into the mayor's office. Papers are scattered everywhere,
+      and strange clockwork devices litter the desk. The air smells of oil
+      and secrets. A clock on the wall ticks backwards. A mechanical frog
+      sits on the desk, watching you with glass eyes. And pinned to the
+      mayor's empty chair is a note with a laughing mask drawn on it.
+      Something happened here—something the Harlequin Machinist wants you to find.
+
+    completion_reward: harlequins_favor
+    completion_reward_text: "Harlequin's Favor Coin"
+
+    stinger: |
+      *A mechanical laugh echoes from somewhere above*
+      "Bravo! You've found my first breadcrumb. But can you follow the trail?
+      The clocktower awaits, little detectives... tick tock, tick tock."
+
+    mini_games:
+      - backwards_clock
+      - puzzle_box
+      - stacked_bookshelf
+      - mechanical_frog_chase
+      - three_locks
+      - carpet_tile_puzzle
+
+    # State flags set when trial is completed
+    completion_flags:
+      - trial_01_complete
+      - met_machinist
+      - clocktower_unlocked
+
+  # ==========================================
+  # Trial #2: The Clocktower's Secret
+  # Location: Clocktower Mechanism Chamber
+  # ==========================================
+  - id: trial_02
+    name: "The Clocktower's Secret"
+    location_id: clocktower_mechanism
+
+    entry_narrative: |
+      The clocktower's inner workings stretch before you—a maze of gears,
+      pendulums, and brass pipes. Someone has been here recently; fresh oil
+      glistens on the mechanisms. Massive gears loom in the darkness, larger
+      than wagon wheels, connected by chains thick as your arm.
+      The Harlequin's workshop must be close.
+
+    completion_reward: harlequins_favor
+    completion_reward_text: "Harlequin's Favor Coin"
+
+    stinger: |
+      *Gears grind as a hidden panel slides open*
+      "Impressive! You've found my little workshop. But don't get comfortable—
+      the final act is about to begin. Will you be ready for the curtain call?"
+
+    mini_games:
+      - gear_alignment
+      - pendulum_timing
+      - chain_climb
+      - pressure_plates
+      - find_workshop
+
+    prerequisites:
+      - trial_01_complete
+
+    completion_flags:
+      - trial_02_complete
+      - workshop_discovered
+      - harlequin_lair_unlocked
+
+  # ==========================================
+  # Trial #3: The Harlequin's Stage (Finale)
+  # Location: Harlequin's Lair
+  # ==========================================
+  - id: trial_03
+    name: "The Harlequin's Stage"
+    location_id: harlequin_lair
+
+    entry_narrative: |
+      The stage is set. Mechanical spotlights illuminate a grand theatrical space.
+      The Harlequin Machinist stands center stage, the missing mayor trapped in an
+      elaborate clockwork cage. "Welcome to the finale!" the masked figure announces.
+      "You've played my games beautifully. Now, let's see how the story ends."
+
+    completion_reward: harlequins_mask
+    completion_reward_text: "Harlequin's Mask"
+
+    stinger: |
+      *The Machinist takes a final bow*
+      "What a performance! You've been a wonderful audience. Perhaps...
+      perhaps Muddlebrook needed this little shake-up. Remember me fondly!"
+      The mask falls away, revealing... [GM determines identity based on campaign choices]
+
+    mini_games:
+      - confront_machinist
+      - clockwork_cage
+      - decide_fate
+
+    prerequisites:
+      - trial_02_complete
+
+    completion_flags:
+      - trial_03_complete
+      - mayor_rescued
+      - machinist_revealed
+      - campaign_complete

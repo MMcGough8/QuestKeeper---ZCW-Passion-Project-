@@ -389,44 +389,4 @@ private String formatCR() {
         name, size.getDisplayName(), type.getDisplayName(),
         formatCR(), currentHitPoints, maxHitPoints, armorClass);
     }
-
-    public static Monster createClockworkCritter(String id) {
-        Monster m = new Monster(id, "Clockwork Critter", Size.SMALL, MonsterType.CONSTRUCT,
-                13, 11, 30, 0.25, 50);
-        m.setAlignment("neutral evil");
-        m.setAbilityModifiers(-1, 2, 2, -4, 0, -4);
-        m.setAttackBonus(4);
-        m.setDamageDice("1d6+2");
-        m.setDescription("A skittering mechanical creature with brass gears and glowing eyes. " +
-                "On hit, target must DC 11 DEX save or drop a small item.");
-        return m;
-    }
-
-    public static Monster createConfettiOoze(String id) {
-        Monster m = new Monster(id, "Confetti Ooze", Size.MEDIUM, MonsterType.OOZE,
-                8, 30, 20, 0.5, 100);
-        m.setAlignment("chaotic neutral");
-        m.setAbilityModifiers(1, -2, 3, -4, 0, -4);
-        m.setAttackBonus(3);
-        m.setDamageDice("1d8+1");
-        m.setDescription("A shimmering blob of animated glitter and confetti. " +
-                "Glitter Burst: When hit by melee, attacker DC 11 CON or blinded 1 round. " +
-                "On death: explodes into confetti, d6: 1-2 sneezing fit (disadv next roll).");
-        return m;
-    }
-    
-    public static Monster createHarlequinMachinist(String id) {
-        Monster m = new Monster(id, "Harlequin Machinist", Size.MEDIUM, MonsterType.HUMANOID,
-                16, 110, 30, 7, 2900);
-        m.setAlignment("chaotic evil");
-        m.setAbilityModifiers(0, 4, 4, 3, 1, 4);
-        m.setAttackBonus(8);
-        m.setDamageDice("1d8+4");
-        m.setDescription("A theatrical villain in a reinforced coat, masked face gleaming. " +
-                "Multiattack (2), Razor Cane (+8, 1d8+4 slash + 1d6 psychic), " +
-                "Clockwork Throw (30/90 ft, marks target for +1d6 on next hit). " +
-                "Show Shield (Recharge 5-6): Reduce damage by 15, teleport 15 ft. " +
-                "Curtain Call (1/day): 20-ft illusion zone, DC 15 WIS or move randomly.");
-        return m;
-    }
 }

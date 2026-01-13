@@ -1,5 +1,6 @@
 package com.questkeeper.campaign;
 
+import com.questkeeper.character.Character.Skill;
 import com.questkeeper.character.NPC;
 import com.questkeeper.combat.Monster;
 import com.questkeeper.inventory.Armor;
@@ -22,21 +23,23 @@ import java.util.Optional;
 
 /**
  * Loads campaign content from YAML files.
- * 
- * Supports loading monsters, NPCs, items, and campaign metadata from
- * structured YAML files, enabling campaign-agnostic game content.
- * 
+ *
+ * Supports loading monsters, NPCs, items, trials, mini-games, and campaign
+ * metadata from structured YAML files, enabling campaign-agnostic game content.
+ *
  * Directory structure expected:
  * campaigns/
  *   campaign_id/
  *     campaign.yaml      - Campaign metadata
  *     monsters.yaml      - Monster templates
  *     npcs.yaml          - NPC definitions
- *     items.yaml         - Item definitions (weapons, armor, misc)
+ *     items.yaml         - Item definitions (weapons, armor, misc, magic items)
  *     locations.yaml     - Location definitions with exits, NPCs, and items
- * 
+ *     trials.yaml        - Trial definitions (puzzle rooms with mini-games)
+ *     minigames.yaml     - Mini-game definitions (skill checks, puzzles)
+ *
  * @author Marc McGough
- * @version 1.0
+ * @version 1.1
  */
 public class CampaignLoader {
 
@@ -45,6 +48,8 @@ public class CampaignLoader {
     private static final String NPCS_FILE = "npcs.yaml";
     private static final String ITEMS_FILE = "items.yaml";
     private static final String LOCATIONS_FILE = "locations.yaml";
+    private static final String TRIALS_FILE = "trials.yaml";
+    private static final String MINIGAMES_FILE = "minigames.yaml";
 
     private final Yaml yaml;
     private final Path campaignRoot;
@@ -64,6 +69,8 @@ public class CampaignLoader {
     private final Map<String, Weapon> weapons;
     private final Map<String, Armor> armors;
     private final Map<String, Location> locations;
+    private final Map<String, Trial> trials;
+    private final Map<String, MiniGame> miniGames;
 
     // Loading state
     private boolean loaded;
@@ -80,6 +87,8 @@ public class CampaignLoader {
         this.weapons = new HashMap<>();
         this.armors = new HashMap<>();
         this.locations = new HashMap<>();
+        this.trials = new HashMap<>();
+        this.miniGames = new HashMap<>();
 
         this.loaded = false;
         this.loadErrors = new ArrayList<>();
@@ -106,6 +115,8 @@ public class CampaignLoader {
         loadNPCs();
         loadItems();
         loadLocations();
+        loadMiniGames();
+        loadTrials();
         validateExitReferences();
 
         loaded = true;
@@ -426,6 +437,149 @@ public class CampaignLoader {
         return location;
     }
 
+    @SuppressWarnings("unchecked")
+    private void loadMiniGames() {
+        Path miniGamesFile = campaignRoot.resolve(MINIGAMES_FILE);
+
+        if (!Files.exists(miniGamesFile)) {
+            return;
+        }
+
+        try (InputStream is = Files.newInputStream(miniGamesFile)) {
+            Map<String, Object> data = yaml.load(is);
+
+            if (data == null || !data.containsKey("minigames")) {
+                return;
+            }
+
+            List<Map<String, Object>> miniGameList = (List<Map<String, Object>>) data.get("minigames");
+
+            for (Map<String, Object> miniGameData : miniGameList) {
+                try {
+                    MiniGame miniGame = parseMiniGame(miniGameData);
+                    miniGames.put(miniGame.getId(), miniGame);
+                } catch (Exception e) {
+                    loadErrors.add("Error parsing minigame: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            loadErrors.add("Error reading minigames.yaml: " + e.getMessage());
+        }
+    }
+
+    private MiniGame parseMiniGame(Map<String, Object> data) {
+        String id = getString(data, "id", "unknown_minigame");
+        String name = getString(data, "name", "Unknown Mini-Game");
+
+        String typeStr = getString(data, "type", "SKILL_CHECK");
+        MiniGame.Type type;
+        try {
+            type = MiniGame.Type.valueOf(typeStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            loadErrors.add("Invalid minigame type '" + typeStr + "' for " + id);
+            type = MiniGame.Type.SKILL_CHECK;
+        }
+
+        MiniGame miniGame = new MiniGame(id, name, type);
+        miniGame.setDescription(getString(data, "description", ""));
+        miniGame.setHint(getString(data, "hint", ""));
+        miniGame.setDc(getInt(data, "dc", 10));
+
+        // Parse required skill
+        String requiredSkillStr = getString(data, "required_skill", null);
+        if (requiredSkillStr != null) {
+            try {
+                miniGame.setRequiredSkill(Skill.valueOf(requiredSkillStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                loadErrors.add("Invalid required_skill '" + requiredSkillStr + "' for minigame " + id);
+            }
+        }
+
+        // Parse alternate skill
+        String altSkillStr = getString(data, "alternate_skill", null);
+        if (altSkillStr != null) {
+            try {
+                miniGame.setAlternateSkill(Skill.valueOf(altSkillStr.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                loadErrors.add("Invalid alternate_skill '" + altSkillStr + "' for minigame " + id);
+            }
+        }
+
+        // Parse reward (can be item ID or text)
+        String rewardItem = getString(data, "reward_item", null);
+        String rewardText = getString(data, "reward_text", "");
+        if (rewardItem != null) {
+            miniGame.setReward(rewardItem);
+        } else if (!rewardText.isEmpty()) {
+            miniGame.setReward(rewardText);
+        }
+
+        // Parse success/fail text
+        miniGame.setCompletionText(getString(data, "success_text", "Challenge completed!"));
+        miniGame.setFailureText(getString(data, "fail_text", "You failed the challenge."));
+        miniGame.setFailConsequence(getString(data, "fail_consequence", ""));
+
+        return miniGame;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void loadTrials() {
+        Path trialsFile = campaignRoot.resolve(TRIALS_FILE);
+
+        if (!Files.exists(trialsFile)) {
+            return;
+        }
+
+        try (InputStream is = Files.newInputStream(trialsFile)) {
+            Map<String, Object> data = yaml.load(is);
+
+            if (data == null || !data.containsKey("trials")) {
+                return;
+            }
+
+            List<Map<String, Object>> trialList = (List<Map<String, Object>>) data.get("trials");
+
+            for (Map<String, Object> trialData : trialList) {
+                try {
+                    Trial trial = parseTrial(trialData);
+                    trials.put(trial.getId(), trial);
+                } catch (Exception e) {
+                    loadErrors.add("Error parsing trial: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            loadErrors.add("Error reading trials.yaml: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Trial parseTrial(Map<String, Object> data) {
+        String id = getString(data, "id", "unknown_trial");
+        String name = getString(data, "name", "Unknown Trial");
+        String locationId = getString(data, "location_id", null);
+        String entryNarrative = getString(data, "entry_narrative", "");
+
+        Trial trial = new Trial(id, name, locationId, entryNarrative);
+
+        trial.setCompletionReward(getString(data, "completion_reward", ""));
+        trial.setStinger(getString(data, "stinger", ""));
+
+        // Add mini-games to the trial by looking them up from the loaded miniGames
+        if (data.containsKey("mini_games")) {
+            List<String> miniGameIds = (List<String>) data.get("mini_games");
+            for (String miniGameId : miniGameIds) {
+                MiniGame miniGame = miniGames.get(miniGameId);
+                if (miniGame != null) {
+                    trial.addMiniGame(miniGame);
+                } else {
+                    loadErrors.add("Trial '" + id + "' references unknown minigame: " + miniGameId);
+                }
+            }
+        }
+
+        return trial;
+    }
+
     /**
      * Validates that all exit references point to existing locations.
      * Adds warnings for any invalid exit references found.
@@ -639,6 +793,22 @@ public class CampaignLoader {
         return Collections.unmodifiableMap(locations);
     }
 
+    public Optional<Trial> getTrial(String id) {
+        return Optional.ofNullable(trials.get(id));
+    }
+
+    public Map<String, Trial> getAllTrials() {
+        return Collections.unmodifiableMap(trials);
+    }
+
+    public Optional<MiniGame> getMiniGame(String id) {
+        return Optional.ofNullable(miniGames.get(id));
+    }
+
+    public Map<String, MiniGame> getAllMiniGames() {
+        return Collections.unmodifiableMap(miniGames);
+    }
+
     public Optional<Location> getStartingLocation() {
         if (startingLocationId == null) {
             return Optional.empty();
@@ -689,6 +859,8 @@ public class CampaignLoader {
                 locations.size(), monsterTemplates.size(), npcs.size()));
         sb.append(String.format("Weapons: %d | Armor: %d | Items: %d%n",
                 weapons.size(), armors.size(), items.size()));
+        sb.append(String.format("Trials: %d | Mini-Games: %d%n",
+                trials.size(), miniGames.size()));
         if (!loadErrors.isEmpty()) {
             sb.append(String.format("Warnings: %d%n", loadErrors.size()));
         }
