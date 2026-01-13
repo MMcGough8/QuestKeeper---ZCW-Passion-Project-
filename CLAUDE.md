@@ -19,7 +19,7 @@ mvn clean install -P quick
 mvn test
 
 # Run a specific test class
-mvn test -Dtest=CampaignLoaderTest
+mvn test -Dtest=CampaignTest
 
 # Run the application
 mvn exec:java -Dexec.mainClass="com.questkeeper.Main"
@@ -39,7 +39,7 @@ mvn javadoc:javadoc
 | `combat` | Monster definitions and `Combatant` interface for unified combat |
 | `inventory` | Item hierarchy: `Item` → `Weapon`, `Armor`, `MagicItem` |
 | `inventory.items.effects` | Item effect system using Template Method pattern |
-| `campaign` | YAML campaign loader (`CampaignLoader`), trials (`Trial`), mini-games (`MiniGame`) |
+| `campaign` | Campaign facade (`Campaign`), YAML loader (`CampaignLoader` - internal), trials (`Trial`), mini-games (`MiniGame`) |
 | `world` | Location system |
 | `ui` | Display and character creation UI |
 | `save` | Game state persistence (`SaveState`, `CharacterData`) |
@@ -48,12 +48,13 @@ mvn javadoc:javadoc
 
 - **Template Method**: `AbstractItemEffect` defines effect application flow; concrete effects implement specifics
 - **Strategy**: `ItemEffect` interface allows swappable effect implementations
-- **Factory**: `CampaignLoader` creates entities from YAML templates
+- **Facade**: `Campaign` provides clean public API; `CampaignLoader` is package-private implementation
+- **Factory**: `Campaign.loadFromYaml()` creates campaigns from YAML directories
 - **Combatant Interface**: Both `Character` and `Monster` implement `Combatant` for polymorphic combat
 
 ### Data Flow
 
-Campaign data flows from YAML files (`src/main/resources/campaigns/`) through `CampaignLoader`, which returns unmodifiable collections. Monsters are loaded as templates and instantiated via `CampaignLoader.createMonster()`. Trials reference mini-games by ID.
+Campaign data flows from YAML files (`src/main/resources/campaigns/`) through `Campaign.loadFromYaml()`, which internally uses `CampaignLoader` and returns unmodifiable collections. Cross-references between entities (location exits, NPC locations, trial mini-games) are validated on load. Monsters are loaded as templates and instantiated via `Campaign.createMonster()`. Trials reference mini-games by ID.
 
 ## Campaign YAML Structure
 
@@ -87,7 +88,7 @@ Mini-games use D&D 5e skill checks:
 
 ## Testing
 
-Tests use JUnit 5 with `@Nested` classes for organization and `@TempDir` for file-based tests. The `CampaignLoaderTest` demonstrates comprehensive YAML parsing tests with temporary file creation.
+Tests use JUnit 5 with `@Nested` classes for organization and `@TempDir` for file-based tests. `CampaignTest` tests the public `Campaign` API with 54 tests covering loading, getters, cross-reference validation, and Muddlebrook integration. `CampaignLoaderTest` tests YAML parsing internals.
 
 ## Key Implementation Details
 
@@ -95,7 +96,7 @@ Tests use JUnit 5 with `@Nested` classes for organization and `@TempDir` for fil
 - 18 skills map to 6 abilities via `Character.Skill` enum
 - Item effects are composable - magic items can have multiple effects
 - `Optional<T>` is used throughout for null safety
-- `CampaignLoader` collects non-fatal errors allowing partial campaign loading
+- `Campaign` validates cross-references on load and exposes validation errors via `getValidationErrors()`
 - Mini-game `evaluate()` method rolls d20 + skill modifier vs DC
 - Standard D&D equipment (weapons, armor) has factory methods; campaign-specific content is YAML-only
 
