@@ -317,11 +317,24 @@ public class GameEngine {
         } else {
             Location target = campaign.getLocation(currentLocation.getExit(direction));
             if (target != null && !target.isUnlocked()) {
-                Display.showError("That way is currently blocked or locked.");
+                // Provide context-specific locked messages
+                String lockedMessage = getLockedLocationMessage(target.getId());
+                Display.showError(lockedMessage);
             } else {
                 Display.showError("You can't go that way.");
             }
         }
+    }
+
+    private String getLockedLocationMessage(String locationId) {
+        return switch (locationId) {
+            case "clocktower_hill" -> "The path to Clocktower Hill is blocked. Perhaps investigating " +
+                    "the Town Hall and completing the trial there will reveal a way forward.";
+            case "harlequin_lair" -> "A hidden passage, but it's sealed tight. You'll need to discover " +
+                    "the Clocktower's secrets first.";
+            case "back_room" -> "Elara's back room is off limits... unless you can earn her trust.";
+            default -> "That way is currently blocked or locked.";
+        };
     }
 
     private void handleTalk(String target) {
@@ -1495,15 +1508,25 @@ public class GameEngine {
         // Set standard completion flag
         gameState.setFlag(trialId + "_complete", true);
 
-        // Set specific flags based on trial
+        // Set specific flags and unlock locations based on trial
         if (trialId.equals("trial_01")) {
             gameState.setFlag("trial_01_complete", true);
             gameState.setFlag("met_machinist", true);
             gameState.setFlag("clocktower_unlocked", true);
+
+            // Unlock the clocktower area
+            unlockLocation("clocktower_hill");
+            Display.println();
+            Display.println(Display.colorize("The path to Clocktower Hill is now accessible!", CYAN));
         } else if (trialId.equals("trial_02")) {
             gameState.setFlag("trial_02_complete", true);
             gameState.setFlag("workshop_discovered", true);
             gameState.setFlag("harlequin_lair_unlocked", true);
+
+            // Unlock the Harlequin's Lair
+            unlockLocation("harlequin_lair");
+            Display.println();
+            Display.println(Display.colorize("A hidden passage to the Harlequin's Stage has been revealed!", CYAN));
         } else if (trialId.equals("trial_03")) {
             gameState.setFlag("trial_03_complete", true);
             gameState.setFlag("mayor_rescued", true);
@@ -1516,6 +1539,16 @@ public class GameEngine {
             Display.println();
             Display.println(Display.colorize("Congratulations! You've completed the Muddlebrook campaign!", GREEN));
             Display.println();
+        }
+    }
+
+    /**
+     * Unlocks a location by ID, making it accessible to the player.
+     */
+    private void unlockLocation(String locationId) {
+        Location location = campaign.getLocation(locationId);
+        if (location != null) {
+            location.unlock();
         }
     }
 

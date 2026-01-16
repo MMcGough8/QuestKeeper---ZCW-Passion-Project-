@@ -98,6 +98,9 @@ public class GameState {
             }
         }
 
+        // Restore location unlocks based on progression flags
+        restoreLocationUnlocks(campaign, state.flags);
+
         // Restore counters
         state.counters.putAll(saveState.getStateCounters());
 
@@ -445,6 +448,36 @@ public class GameState {
 
     public String getCampaignName() {
         return campaign.getName();
+    }
+
+    /**
+     * Restores location unlocks based on game progress flags.
+     * Called when loading a saved game to ensure locations are accessible.
+     */
+    private static void restoreLocationUnlocks(Campaign campaign, Set<String> flags) {
+        // Unlock clocktower if Trial #1 was completed
+        if (flags.contains("clocktower_unlocked") || flags.contains("trial_01_complete")) {
+            Location clocktower = campaign.getLocation("clocktower_hill");
+            if (clocktower != null) {
+                clocktower.unlock();
+            }
+        }
+
+        // Unlock Harlequin's Lair if Trial #2 was completed
+        if (flags.contains("harlequin_lair_unlocked") || flags.contains("trial_02_complete")) {
+            Location lair = campaign.getLocation("harlequin_lair");
+            if (lair != null) {
+                lair.unlock();
+            }
+        }
+
+        // Unlock Elara's back room if player has discovered it
+        if (flags.contains("back_room_unlocked")) {
+            Location backRoom = campaign.getLocation("back_room");
+            if (backRoom != null) {
+                backRoom.unlock();
+            }
+        }
     }
 
     @Override
