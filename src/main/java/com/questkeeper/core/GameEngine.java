@@ -13,6 +13,8 @@ import com.questkeeper.combat.Monster;
 import com.questkeeper.core.CommandParser.Command;
 import com.questkeeper.dialogue.DialogueResult;
 import com.questkeeper.dialogue.DialogueSystem;
+import com.questkeeper.inventory.Inventory.EquipmentSlot;
+import com.questkeeper.inventory.Item;
 import com.questkeeper.save.SaveState;
 import com.questkeeper.state.GameState;
 import com.questkeeper.ui.CharacterCreator;
@@ -227,12 +229,13 @@ public class GameEngine {
             case "attack" -> handleAttack(noun);
             case "trial" -> handleTrial();
             case "attempt", "solve", "try" -> handleAttempt(noun);
-            case "inventory" -> handleInventory();
+            case "inventory", "i" -> handleInventory();
+            case "equipment", "equipped", "gear" -> showEquippedItems();
             case "stats" -> handleStats();
-            case "take" -> handleTake(noun);
+            case "take", "get", "pickup" -> handleTake(noun);
             case "drop" -> handleDrop(noun);
-            case "equip" -> handleEquip(noun);
-            case "unequip" -> handleUnequip(noun);
+            case "equip", "wear", "wield" -> handleEquip(noun);
+            case "unequip", "remove" -> handleUnequip(noun);
             case "help" -> Display.showHelp();
             case "save" -> handleSave();
             case "load" -> handleLoad();
@@ -465,22 +468,159 @@ public class GameEngine {
 
     private void handleEquip(String target) {
         if (target == null || target.isEmpty()) {
-            Display.showError("Equip what?");
+            Display.showError("Equip what? Try 'equip <item name>'");
             return;
         }
 
-        // TODO: Implement equipment system integration
-        Display.showInfo("Equipment system coming soon. For now, items are tracked in inventory.");
+        var inventory = gameState.getCharacter().getInventory();
+        List<Item> matches = inventory.findItemsByName(target);
+
+        if (matches.isEmpty()) {
+            Display.showError("You don't have anything called '" + target + "' in your inventory.");
+            return;
+        }
+
+        // Filter to only equippable items
+        List<Item> equippable = matches.stream()
+                .filter(Item::isEquippable)
+                .toList();
+
+        if (equippable.isEmpty()) {
+            Display.showError("'" + matches.get(0).getName() + "' cannot be equipped.");
+            return;
+        }
+
+        Item toEquip;
+        if (equippable.size() == 1) {
+            toEquip = equippable.get(0);
+        } else {
+            // Multiple matches - let player choose
+            Display.println();
+            Display.println(Display.colorize("Multiple items match. Which one?", CYAN));
+            for (int i = 0; i < equippable.size(); i++) {
+                Display.println(String.format("  %d) %s", i + 1, equippable.get(i).getName()));
+            }
+            Display.showPrompt("Choice (1-" + equippable.size() + ")> ");
+
+            try {
+                int choice = Integer.parseInt(scanner.nextLine().trim());
+                if (choice < 1 || choice > equippable.size()) {
+                    Display.showError("Invalid choice.");
+                    return;
+                }
+                toEquip = equippable.get(choice - 1);
+            } catch (NumberFormatException e) {
+                Display.showError("Please enter a number.");
+                return;
+            }
+        }
+
+        // Equip the item
+        Item previousItem = inventory.equip(toEquip);
+
+        // Determine what slot it went to for display
+        String slotName = getSlotNameForItem(toEquip);
+
+        Display.println();
+        Display.println(Display.colorize("Equipped: ", GREEN) + toEquip.getName() +
+                Display.colorize(" (" + slotName + ")", WHITE));
+
+        if (previousItem != null) {
+            Display.println(Display.colorize("Unequipped: ", YELLOW) + previousItem.getName() +
+                    " (returned to inventory)");
+        }
+        Display.println();
+    }
+
+    private String getSlotNameForItem(Item item) {
+        if (item instanceof com.questkeeper.inventory.Weapon) {
+            return "Main Hand";
+        } else if (item instanceof com.questkeeper.inventory.Armor armor) {
+            return armor.isShield() ? "Off Hand" : "Armor";
+        }
+        return "Equipment";
     }
 
     private void handleUnequip(String target) {
         if (target == null || target.isEmpty()) {
-            Display.showError("Unequip what?");
+            showEquippedItems();
+            Display.println("Use 'unequip <slot>' or 'unequip <item name>' to unequip.");
+            Display.println("Slots: weapon, armor, shield, offhand, head, neck, ring");
+            Display.println();
             return;
         }
 
-        // TODO: Implement equipment system integration
-        Display.showInfo("Equipment system coming soon.");
+        var inventory = gameState.getCharacter().getInventory();
+        String lowerTarget = target.toLowerCase();
+
+        // Try to match by slot name first
+        EquipmentSlot slot = parseSlotName(lowerTarget);
+
+        if (slot != null) {
+            Item unequipped = inventory.unequip(slot);
+            if (unequipped != null) {
+                Display.println();
+                Display.println(Display.colorize("Unequipped: ", GREEN) + unequipped.getName() +
+                        " (returned to inventory)");
+                Display.println();
+            } else {
+                Display.showError("Nothing equipped in " + slot.getDisplayName() + " slot.");
+            }
+            return;
+        }
+
+        // Try to find equipped item by name
+        var equippedItems = inventory.getEquippedItems();
+        for (var entry : equippedItems.entrySet()) {
+            if (entry.getValue().getName().toLowerCase().contains(lowerTarget)) {
+                Item unequipped = inventory.unequip(entry.getKey());
+                Display.println();
+                Display.println(Display.colorize("Unequipped: ", GREEN) + unequipped.getName() +
+                        " (returned to inventory)");
+                Display.println();
+                return;
+            }
+        }
+
+        Display.showError("'" + target + "' is not equipped. Use 'unequip' to see equipped items.");
+    }
+
+    private EquipmentSlot parseSlotName(String name) {
+        return switch (name) {
+            case "weapon", "main hand", "mainhand", "main" -> EquipmentSlot.MAIN_HAND;
+            case "offhand", "off hand", "off", "shield" -> EquipmentSlot.OFF_HAND;
+            case "armor", "body", "chest" -> EquipmentSlot.ARMOR;
+            case "head", "helmet", "helm", "hat" -> EquipmentSlot.HEAD;
+            case "neck", "necklace", "amulet" -> EquipmentSlot.NECK;
+            case "ring", "ring left", "left ring", "ringleft" -> EquipmentSlot.RING_LEFT;
+            case "ring right", "right ring", "ringright" -> EquipmentSlot.RING_RIGHT;
+            default -> null;
+        };
+    }
+
+    private void showEquippedItems() {
+        var inventory = gameState.getCharacter().getInventory();
+        var equipped = inventory.getEquippedItems();
+
+        Display.println();
+        Display.printBox("EQUIPPED ITEMS", 50, MAGENTA);
+        Display.println();
+
+        if (equipped.isEmpty()) {
+            Display.println("Nothing equipped.");
+        } else {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                Item item = equipped.get(slot);
+                String slotDisplay = String.format("%-12s", slot.getDisplayName() + ":");
+                if (item != null) {
+                    Display.println(Display.colorize(slotDisplay, WHITE) + item.getName());
+                } else {
+                    Display.println(Display.colorize(slotDisplay, WHITE) +
+                            Display.colorize("(empty)", DEFAULT));
+                }
+            }
+        }
+        Display.println();
     }
 
     private void handleSave() {
