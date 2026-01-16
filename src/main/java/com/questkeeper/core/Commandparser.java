@@ -145,7 +145,13 @@ public class CommandParser {
         SYNONYM_MAP.put("quit", VERB_QUIT);
         SYNONYM_MAP.put("exit", VERB_QUIT);
         SYNONYM_MAP.put("q", VERB_QUIT);
-        SYNONYM_MAP.put("bye", VERB_QUIT);
+        // Note: "bye" and "farewell" are handled as dialogue-ending commands
+
+        // Dialogue ending → "bye"
+        SYNONYM_MAP.put("bye", "bye");
+        SYNONYM_MAP.put("farewell", "bye");
+        SYNONYM_MAP.put("goodbye", "bye");
+        SYNONYM_MAP.put("later", "bye");
         
         // Rest synonyms → "rest"
         SYNONYM_MAP.put("rest", VERB_REST);

@@ -229,6 +229,7 @@ public class GameEngine {
             case "go" -> handleGo(noun);
             case "talk" -> handleTalk(noun);
             case "ask" -> handleAsk(input);
+            case "bye" -> handleBye();
             case "attack" -> handleAttack(noun);
             case "trial" -> handleTrial();
             case "attempt", "solve", "try" -> handleAttempt(noun);
@@ -378,6 +379,20 @@ public class GameEngine {
 
         DialogueResult result = dialogueSystem.askAbout(topic);
         displayDialogueResult(result);
+    }
+
+    private void handleBye() {
+        if (!dialogueSystem.isInConversation()) {
+            Display.println("You wave goodbye to no one in particular.");
+            return;
+        }
+
+        NPC npc = dialogueSystem.getCurrentNpc();
+        dialogueSystem.endDialogue();
+
+        Display.println();
+        Display.println(Display.colorize("You end your conversation with " + npc.getName() + ".", CYAN));
+        Display.println();
     }
 
     private void handleInventory() {
