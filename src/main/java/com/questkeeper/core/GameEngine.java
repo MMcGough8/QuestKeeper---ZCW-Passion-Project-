@@ -372,6 +372,20 @@ public class GameEngine {
         Display.printBox("INVENTORY", 50, YELLOW);
         Display.println();
 
+        // Show key equipped items at a glance
+        var equipped = inventory.getEquippedItems();
+        Display.println(Display.colorize("Equipped:", WHITE));
+        Item weapon = equipped.get(EquipmentSlot.MAIN_HAND);
+        Item armor = equipped.get(EquipmentSlot.ARMOR);
+        Item offhand = equipped.get(EquipmentSlot.OFF_HAND);
+        Display.println("  Weapon: " + (weapon != null ? weapon.getName() : "(none)"));
+        Display.println("  Armor:  " + (armor != null ? armor.getName() : "(none)"));
+        if (offhand != null) {
+            Display.println("  Off-hand: " + offhand.getName());
+        }
+        Display.println(Display.colorize("  (type 'equipment' for full list)", DEFAULT));
+        Display.println();
+
         Display.println(Display.colorize("Gold: ", WHITE) +
             Display.colorize(String.valueOf(inventory.getGold()) + " gp", YELLOW));
         Display.println(Display.colorize("Weight: ", WHITE) +
@@ -382,7 +396,7 @@ public class GameEngine {
         if (items.isEmpty()) {
             Display.println("Your pack is empty.");
         } else {
-            Display.println(Display.colorize("Items:", WHITE));
+            Display.println(Display.colorize("Backpack:", WHITE));
             for (var stack : items) {
                 String countStr = stack.getQuantity() > 1 ? " (x" + stack.getQuantity() + ")" : "";
                 Display.println("  - " + stack.getItem().getName() + countStr);
